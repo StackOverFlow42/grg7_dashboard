@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Widerspruch-Assistent · § 71 SchUG</title>
+<style>
+  :root{
+    --paper:#f6f5f2; --paper-line:#e2e0d8; --line-strong:#c9c6ba;
+    --ink:#20241f; --ink-soft:#7a7c73;
+    --blue:#7a3b30; --blue-soft:#f1e6e2;
+    --stamp:#A5231D; --ok:#2E6B45; --ok-soft:#E2EFE7; --warn-soft:#F6E3E1;
+    --mono:"SF Mono",Consolas,"Liberation Mono",monospace;
+    --serif:Georgia,'Iowan Old Style','Times New Roman',serif;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--paper);font-family:var(--sans);color:var(--ink);padding:0 0 60px}
+  .akt{max-width:880px;margin:0 auto;padding:28px 14px 0}
+
+  .k7-bar{background:var(--paper);border-bottom:1px solid var(--line-strong);padding:10px clamp(14px,4vw,30px);}
+  .k7-bar-link{display:inline-flex;align-items:center;gap:8px;color:var(--ink);text-decoration:none;font-size:.82rem;font-weight:600;}
+  .k7-bar-link:hover{text-decoration:underline;}
+  .k7-bar-mark{font-family:var(--serif);font-weight:700;border:1px solid var(--ink);width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-size:.65rem;flex-shrink:0;}
+  .k7-bar-sep{opacity:.5;}
+
+  /* Kopf */
+  .kopf{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:0;padding:0 6px 14px;border-bottom:1px solid var(--paper-line)}
+  .kopf h1{font-family:var(--serif);font-size:clamp(22px,4vw,28px);font-weight:700;letter-spacing:.1px}
+  .kopf .gz{font-family:var(--mono);font-size:12px;color:var(--ink-soft);text-align:right;line-height:1.5}
+
+  /* Registerkarten */
+  .tabs{display:flex;gap:22px;padding:14px 6px 0;flex-wrap:wrap}
+  .tab{appearance:none;border:none;border-bottom:2px solid transparent;background:none;
+       color:var(--ink-soft);font:600 13px/1 var(--sans);padding:0 0 12px;
+       cursor:pointer;display:flex;align-items:center;gap:8px;margin-bottom:-1px}
+  .tab .n{font-family:var(--mono);font-size:11px;background:var(--paper-line);color:var(--ink-soft);border-radius:50%;
+          width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center}
+  .tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+  .tab.done .n{background:var(--ok);color:#fff}
+  .tab:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+
+  /* Blatt */
+  .blatt{background:var(--paper);border:1px solid var(--paper-line);border-top:none;border-radius:0;
+         padding:30px clamp(18px,4vw,44px) 36px;box-shadow:none}
+  .schritt{display:none}
+  .schritt.aktiv{display:block}
+  .schritt h2{font-family:var(--serif);font-size:21px;font-weight:700;margin-bottom:4px}
+  .schritt .untertitel{color:var(--ink-soft);font-size:13.5px;margin-bottom:22px}
+  .schritt h3{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--blue);
+              margin:26px 0 10px;padding-bottom:5px;border-bottom:1px solid var(--paper-line)}
+
+  /* Formular */
+  .zeile{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:14px}
+  label.feld{display:block;font-size:12.5px;font-weight:600;color:var(--ink-soft)}
+  label.feld span{display:block;margin-bottom:5px}
+  input[type=text],input[type=date],input[type=number],select,textarea{
+    width:100%;border:1px solid var(--line-strong);border-radius:0;background:#fff;padding:9px 10px;
+    font:400 14px/1.4 var(--sans);color:var(--ink)}
+  textarea{resize:vertical}
+  input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+
+  /* Checklisten */
+  .check{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--paper-line);
+         border-radius:0;margin-bottom:8px;background:#fff}
+  .check input[type=checkbox]{width:17px;height:17px;margin-top:2px;accent-color:var(--blue);flex:none}
+  .check .txt{font-size:14px;line-height:1.45;flex:1}
+  .check .txt small{display:block;color:var(--ink-soft);font-size:12.5px;margin-top:2px}
+  .check .detail{margin-top:8px}
+  .check .detail input{font-size:13px;padding:7px 9px}
+
+  /* Frist-Stempel */
+  .fristbox{display:flex;gap:22px;align-items:center;flex-wrap:wrap;border:1px dashed var(--line-strong);
+            border-radius:0;padding:18px;background:#fff;margin-top:6px}
+  .fristinfo{flex:1;min-width:220px;font-size:14px;line-height:1.6}
+  .fristinfo b{font-family:var(--mono);font-size:13.5px}
+  .stempel{font-family:var(--mono);font-weight:700;font-size:15px;letter-spacing:.14em;text-transform:uppercase;
+           border:3px double currentColor;border-radius:0;padding:10px 16px;transform:rotate(-6deg);
+           opacity:.92;white-space:nowrap}
+  .stempel.ok{color:var(--ok);background:var(--ok-soft)}
+  .stempel.spaet{color:var(--stamp);background:var(--warn-soft)}
+  .stempel.leer{color:var(--ink-soft);background:var(--paper);border-style:dashed;transform:none;font-weight:600}
+
+  .hinweis{font-size:12.5px;color:var(--ink-soft);background:var(--blue-soft);border-radius:0;
+           padding:10px 12px;margin-top:14px;line-height:1.5}
+  .hinweis b{color:var(--blue)}
+
+  /* Lehrplan */
+  .lp-kopf{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+  .btn-klein{appearance:none;border:1px solid var(--blue);background:#fff;color:var(--blue);
+             font:600 12.5px/1 var(--sans);padding:8px 12px;border-radius:0;cursor:pointer}
+  .btn-klein:hover{background:var(--blue-soft)}
+
+  /* Navigation */
+  .nav{display:flex;justify-content:space-between;gap:10px;margin-top:30px;padding-top:18px;border-top:1px solid var(--paper-line)}
+  .btn{appearance:none;border:none;border-radius:0;font:600 14.5px/1 var(--sans);padding:13px 22px;cursor:pointer}
+  .btn.primaer{background:var(--ink);color:#fff}
+  .btn.primaer:hover{background:var(--blue)}
+  .btn.sekundaer{background:var(--paper-line);color:var(--ink)}
+  .btn.sekundaer:hover{background:var(--line-strong)}
+  .btn:disabled{opacity:.4;cursor:default}
+
+  /* Ausgabe */
+  .ausgabe-aktionen{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+  #ausgabe{font-family:var(--serif);font-size:14.5px;line-height:1.65;min-height:420px;background:#fff;
+           border:1px solid var(--line-strong);padding:26px 28px;white-space:pre-wrap}
+  .kopiert{color:var(--ok);font-size:13px;font-weight:600;align-self:center}
+
+  @media (prefers-reduced-motion:no-preference){
+    .schritt.aktiv{animation:auf .25s ease}
+    @keyframes auf{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  }
+  @media print{
+    body{background:#fff;padding:0}
+    .tabs,.nav,.ausgabe-aktionen,.kopf .gz,.hinweis{display:none!important}
+    .blatt{border:none;box-shadow:none;padding:0}
+    .schritt{display:none!important}
+    #s5{display:block!important}
+    #ausgabe{border:none;padding:0}
+  }
+</style>
+</head>
+<body>
+<div class="k7-bar">
+  <a class="k7-bar-link" href="Lehrkraefte_Dashboard_GRG7_Kandlgasse.html">
+    <span class="k7-bar-mark">K7</span> GRG7 Kandlgasse <span class="k7-bar-sep">·</span> Zur Übersicht
+  </a>
+</div>
+<div class="akt">
+  <div class="kopf">
+    <h1>Widerspruch-Assistent</h1>
+    <div class="gz">Verfahren nach § 71 SchUG<br>Stellungnahme der Lehrkraft · Arbeitsbehelf</div>
+  </div>
+
+  <div class="tabs" role="tablist" aria-label="Bearbeitungsschritte">
+    <button class="tab" role="tab" aria-selected="true" data-s="1" id="t1"><span class="n">1</span>Falldaten</button>
+    <button class="tab" role="tab" aria-selected="false" data-s="2" id="t2"><span class="n">2</span>Fristen</button>
+    <button class="tab" role="tab" aria-selected="false" data-s="3" id="t3"><span class="n">3</span>Beweislage</button>
+    <button class="tab" role="tab" aria-selected="false" data-s="4" id="t4"><span class="n">4</span>Lehrplanbezug</button>
+    <button class="tab" role="tab" aria-selected="false" data-s="5" id="t5"><span class="n">5</span>Stellungnahme</button>
+  </div>
+
+  <div class="blatt">
+
+    <!-- Schritt 1 -->
+    <section class="schritt aktiv" id="s1" role="tabpanel" aria-labelledby="t1">
+      <h2>1 · Falldaten erfassen</h2>
+      <p class="untertitel">Grunddaten des Widerspruchsfalls. Alle Angaben fließen in den Stellungnahme-Entwurf ein.</p>
+      <div class="zeile">
+        <label class="feld"><span>Schüler:in (Name oder Initialen)</span><input type="text" id="f_name" placeholder="z. B. M. K."></label>
+        <label class="feld"><span>Klasse</span><input type="text" id="f_klasse" placeholder="z. B. 7A"></label>
+        <label class="feld"><span>Schulstufe</span>
+          <select id="f_stufe">
+            <option value="">– wählen –</option>
+            <option>9. Schulstufe (5. Klasse)</option><option>10. Schulstufe (6. Klasse)</option>
+            <option selected>11. Schulstufe (7. Klasse)</option><option>12. Schulstufe (8. Klasse)</option>
+          </select></label>
+      </div>
+      <div class="zeile">
+        <label class="feld"><span>Unterrichtsgegenstand</span>
+          <select id="f_fach">
+            <option selected>Deutsch</option><option>Mathematik</option><option>Latein</option>
+            <option>Französisch</option><option>Italienisch</option><option>Englisch</option>
+            <option>Geschichte und Politische Bildung</option><option>Geographie und wirtschaftliche Bildung</option>
+            <option>Anderes Fach</option>
+          </select></label>
+        <label class="feld"><span>Beurteilung im Jahreszeugnis</span>
+          <select id="f_note"><option selected>Nicht genügend</option><option>Genügend</option><option>Andere</option></select></label>
+        <label class="feld"><span>Schuljahr</span><input type="text" id="f_sj" value="2025/26"></label>
+      </div>
+      <div class="zeile">
+        <label class="feld"><span>Lehrkraft (Stellungnahme von)</span><input type="text" id="f_lk" placeholder="z. B. Mag. F. H."></label>
+        <label class="feld"><span>Gegenstand des Widerspruchs</span>
+          <select id="f_gegenstand">
+            <option selected>Nichtberechtigung zum Aufsteigen (§ 71 Abs 2 lit c SchUG)</option>
+            <option>Nichtbestehen der letzten Schulstufe</option>
+            <option>Anderes</option>
+          </select></label>
+      </div>
+    </section>
+
+    <!-- Schritt 2 -->
+    <section class="schritt" id="s2" role="tabpanel" aria-labelledby="t2">
+      <h2>2 · Fristen prüfen</h2>
+      <p class="untertitel">Der Widerspruch ist binnen fünf Tagen ab Zustellung der Entscheidung (Zeugnis) einzubringen. Der Fristenlauf wird automatisch berechnet.</p>
+      <div class="zeile">
+        <label class="feld"><span>Zeugnis ausgestellt / zugestellt am</span><input type="date" id="f_zeugnis"></label>
+        <label class="feld"><span>Widerspruch eingelangt am</span><input type="date" id="f_eingang"></label>
+      </div>
+      <div class="fristbox">
+        <div class="fristinfo" id="fristtext">Beide Daten eintragen, um die Frist zu prüfen.</div>
+        <div class="stempel leer" id="friststempel">Frist offen</div>
+      </div>
+
+      <h3>Verfahrensschritte</h3>
+      <div id="verfahren"></div>
+      <p class="hinweis"><b>Hinweis:</b> Fristberechnung als Arbeitshilfe (Kalendertage, Ende an Samstag/Sonntag/Feiertag ist gesondert zu prüfen). Maßgeblich ist die Beurteilung durch die Schulleitung bzw. Bildungsdirektion.</p>
+    </section>
+
+    <!-- Schritt 3 -->
+    <section class="schritt" id="s3" role="tabpanel" aria-labelledby="t3">
+      <h2>3 · Beweislage dokumentieren</h2>
+      <p class="untertitel">Welche Leistungsfeststellungen und Aufzeichnungen liegen der Beurteilung zugrunde? Angekreuzte Punkte werden in die Stellungnahme übernommen.</p>
+      <div id="beweise"></div>
+    </section>
+
+    <!-- Schritt 4 -->
+    <section class="schritt" id="s4" role="tabpanel" aria-labelledby="t4">
+      <h2>4 · Lehrplanbezug ankreuzen</h2>
+      <p class="untertitel">Kompetenzbereiche laut Lehrplan, auf die sich die Leistungsfeststellungen beziehen. Die Liste richtet sich nach dem gewählten Fach und kann ergänzt werden.</p>
+      <div class="lp-kopf">
+        <div style="font-size:13.5px;color:var(--ink-soft)">Fach: <b id="lp_fachname" style="color:var(--ink)">Deutsch</b></div>
+        <button class="btn-klein" type="button" id="lp_add">+ Eigenen Kompetenzbereich ergänzen</button>
+      </div>
+      <div id="lehrplan"></div>
+      <p class="hinweis"><b>Wichtig:</b> Vor Abgabe die exakte Lehrplan-Formulierung mit der geltenden Fassung im RIS abgleichen (Lehrpläne AHS, BGBl.). Die Einträge hier sind Arbeitstitel der Kompetenzbereiche.</p>
+    </section>
+
+    <!-- Schritt 5 -->
+    <section class="schritt" id="s5" role="tabpanel" aria-labelledby="t5">
+      <h2>5 · Stellungnahme-Entwurf</h2>
+      <p class="untertitel">Automatisch aus den Schritten 1–4 zusammengesetzt. Direkt im Feld bearbeitbar, danach kopieren oder drucken.</p>
+      <div class="ausgabe-aktionen">
+        <button class="btn primaer" type="button" id="neu">Entwurf neu erzeugen</button>
+        <button class="btn sekundaer" type="button" id="kopieren">In Zwischenablage kopieren</button>
+        <button class="btn sekundaer" type="button" onclick="window.print()">Drucken</button>
+        <span class="kopiert" id="kopiert_ok" hidden>Kopiert ✓</span>
+      </div>
+      <textarea id="ausgabe" spellcheck="false" aria-label="Stellungnahme-Entwurf"></textarea>
+    </section>
+
+    <div class="nav">
+      <button class="btn sekundaer" type="button" id="zurueck">← Zurück</button>
+      <button class="btn primaer" type="button" id="weiter">Weiter →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* ---------- Daten ---------- */
+const VERFAHREN = [
+  ["Widerspruch schriftlich bei der Schulleitung eingelangt (Datum notiert)"],
+  ["Schulleitung leitet den Widerspruch samt Unterlagen an die Bildungsdirektion weiter"],
+  ["Beurteilungsunterlagen gesichert (Schularbeiten, Aufzeichnungen, Notenlisten)", "Originale kopieren, nichts nachträglich ändern"],
+  ["Stellungnahme der Lehrkraft verfasst (dieses Tool, Schritt 5)"],
+  ["Klassenvorstand / Direktion informiert"],
+];
+
+const BEWEISE = [
+  ["sa","Schularbeiten","Anzahl und Beurteilungen, z. B. 4 Schularbeiten: 5, 5, 4, 5", true],
+  ["mitarbeit","Aufzeichnungen zur Mitarbeit","laufende Mitarbeitsbeobachtung lt. § 4 LBVO, z. B. Zeitraum und Tendenz", true],
+  ["test","Tests / schriftliche Überprüfungen","Anzahl und Beurteilungen", true],
+  ["pruefung","Mündliche Prüfung / Wunschprüfung","Datum und Beurteilung; Prüfungsprotokoll vorhanden?", true],
+  ["referat","Referate / Präsentationen","Thema, Datum, Beurteilung", true],
+  ["fruehwarnung","Frühwarnung erfolgt (§ 19 SchUG)","Datum der Verständigung, Beratungsgespräch", true],
+  ["foerder","Fördermaßnahmen angeboten / dokumentiert","Förderunterricht, individuelle Rückmeldungen", true],
+  ["sonst","Sonstige Nachweise","z. B. Portfolio, Hausübungsdokumentation", true],
+];
+
+const LEHRPLAN = {
+  "Deutsch": ["Mündliche Kompetenz (Zuhören und Sprechen)","Schriftliche Kompetenz (Lesen und Schreiben)","Textkompetenz","Literarische Bildung","Mediale Bildung","Sprachbewusstsein / Sprachreflexion"],
+  "Mathematik": ["Algebra und Geometrie","Funktionale Abhängigkeiten","Analysis","Stochastik / Wahrscheinlichkeit und Statistik","Handlungsbereich Operieren","Handlungsbereich Modellieren und Argumentieren"],
+  "Latein": ["Übersetzen lateinischer Originaltexte","Texterschließung und Interpretation","Sprachreflexion / Grammatikkompetenz","Kultur- und Kontextwissen"],
+  "Französisch": ["Hören (GERS)","Lesen (GERS)","An Gesprächen teilnehmen (GERS)","Zusammenhängendes Sprechen (GERS)","Schreiben (GERS)"],
+  "Italienisch": ["Hören (GERS)","Lesen (GERS)","An Gesprächen teilnehmen (GERS)","Zusammenhängendes Sprechen (GERS)","Schreiben (GERS)"],
+  "Englisch": ["Hören (GERS)","Lesen (GERS)","An Gesprächen teilnehmen (GERS)","Zusammenhängendes Sprechen (GERS)","Schreiben (GERS)"],
+  "Geschichte und Politische Bildung": ["Historische Sachkompetenz","Historische Methodenkompetenz","Historische Orientierungskompetenz","Politische Kompetenzen (Urteils-, Handlungs-, Sachkompetenz)"],
+  "Geographie und wirtschaftliche Bildung": ["Fachliche Sachkompetenz","Methodenkompetenz (Orientierung, Karten, Daten)","Wirtschaftliche Kompetenz","Urteils- und Handlungskompetenz"],
+  "Anderes Fach": []
+};
+
+let schritt = 1;
+let lpCustom = []; // eigene Kompetenzbereiche
+
+/* ---------- Aufbau ---------- */
+function bauVerfahren(){
+  document.getElementById("verfahren").innerHTML = VERFAHREN.map((v,i)=>`
+    <label class="check"><input type="checkbox" id="v_${i}">
+      <span class="txt">${v[0]}${v[1]?`<small>${v[1]}</small>`:""}</span></label>`).join("");
+}
+function bauBeweise(){
+  document.getElementById("beweise").innerHTML = BEWEISE.map(b=>`
+    <div class="check"><input type="checkbox" id="b_${b[0]}" onchange="document.getElementById('bd_${b[0]}').style.display=this.checked?'block':'none'">
+      <span class="txt"><label for="b_${b[0]}" style="cursor:pointer">${b[1]}</label>
+        <small>${b[2]}</small>
+        <span class="detail" id="bd_${b[0]}" style="display:none">
+          <input type="text" id="bt_${b[0]}" placeholder="Details für die Stellungnahme …" aria-label="Details zu ${b[1]}">
+        </span></span></div>`).join("");
+}
+function bauLehrplan(){
+  const fach = document.getElementById("f_fach").value;
+  document.getElementById("lp_fachname").textContent = fach;
+  const alte = leseLehrplanAuswahl(); // bisherige Häkchen mitnehmen, wo möglich
+  const liste = (LEHRPLAN[fach]||[]).concat(lpCustom);
+  document.getElementById("lehrplan").innerHTML = liste.length ? liste.map((k,i)=>`
+    <div class="check"><input type="checkbox" id="lp_${i}" data-k="${k.replace(/"/g,'&quot;')}" ${alte.includes(k)?"checked":""}>
+      <span class="txt"><label for="lp_${i}" style="cursor:pointer">${k}</label>
+        <span class="detail" style="display:block">
+          <input type="text" id="lpt_${i}" placeholder="Bezug zur Leistungsfeststellung (optional) …" aria-label="Bezug zu ${k}">
+        </span></span></div>`).join("")
+    : `<p style="font-size:14px;color:var(--ink-soft)">Für dieses Fach sind keine Bereiche vorbelegt – über den Button eigene Kompetenzbereiche ergänzen.</p>`;
+}
+function leseLehrplanAuswahl(){
+  return Array.from(document.querySelectorAll('#lehrplan input[type=checkbox]:checked')).map(c=>c.dataset.k||"");
+}
+document.getElementById("lp_add").addEventListener("click",()=>{
+  const k = prompt("Bezeichnung des Kompetenzbereichs:");
+  if(k && k.trim()){ lpCustom.push(k.trim()); bauLehrplan(); }
+});
+document.getElementById("f_fach").addEventListener("change",()=>{ lpCustom=[]; bauLehrplan(); });
+
+/* ---------- Fristen ---------- */
+function fmt(d){ return d.toLocaleDateString("de-AT",{weekday:"short",day:"2-digit",month:"2-digit",year:"numeric"}); }
+function pruefFrist(){
+  const z = document.getElementById("f_zeugnis").value;
+  const e = document.getElementById("f_eingang").value;
+  const info = document.getElementById("fristtext");
+  const st = document.getElementById("friststempel");
+  if(!z){ info.textContent="Beide Daten eintragen, um die Frist zu prüfen."; st.className="stempel leer"; st.textContent="Frist offen"; return; }
+  const zu = new Date(z+"T00:00:00");
+  const ende = new Date(zu); ende.setDate(ende.getDate()+5);
+  let html = `Zustellung: <b>${fmt(zu)}</b><br>Fristende (5 Tage): <b>${fmt(ende)}</b>`;
+  if(!e){ info.innerHTML=html+"<br>Eingangsdatum des Widerspruchs eintragen."; st.className="stempel leer"; st.textContent="Frist offen"; return; }
+  const ein = new Date(e+"T00:00:00");
+  html += `<br>Eingelangt: <b>${fmt(ein)}</b>`;
+  if(ein <= ende){ st.className="stempel ok"; st.textContent="Fristgerecht"; }
+  else { st.className="stempel spaet"; st.textContent="Verspätet?"; html+="<br>Eingang nach Fristende – Rechtzeitigkeit gesondert prüfen."; }
+  info.innerHTML = html;
+}
+document.getElementById("f_zeugnis").addEventListener("change",pruefFrist);
+document.getElementById("f_eingang").addEventListener("change",pruefFrist);
+
+/* ---------- Navigation ---------- */
+function zeige(n){
+  schritt = n;
+  document.querySelectorAll(".schritt").forEach(s=>s.classList.remove("aktiv"));
+  document.getElementById("s"+n).classList.add("aktiv");
+  document.querySelectorAll(".tab").forEach(t=>{
+    const tn = +t.dataset.s;
+    t.setAttribute("aria-selected", tn===n ? "true":"false");
+    t.classList.toggle("done", tn<n);
+  });
+  document.getElementById("zurueck").disabled = n===1;
+  document.getElementById("weiter").textContent = n===4 ? "Entwurf erzeugen →" : n===5 ? "Fertig" : "Weiter →";
+  document.getElementById("weiter").disabled = n===5;
+  if(n===5) erzeuge();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>zeige(+t.dataset.s)));
+document.getElementById("weiter").addEventListener("click",()=>{ if(schritt<5) zeige(schritt+1); });
+document.getElementById("zurueck").addEventListener("click",()=>{ if(schritt>1) zeige(schritt-1); });
+
+/* ---------- Entwurf ---------- */
+function w(id){ return (document.getElementById(id)||{}).value?.trim()||""; }
+function heute(){ return new Date().toLocaleDateString("de-AT",{day:"2-digit",month:"2-digit",year:"numeric"}); }
+function erzeuge(){
+  const name=w("f_name")||"[Name]", klasse=w("f_klasse")||"[Klasse]", stufe=w("f_stufe")||"[Schulstufe]";
+  const fach=w("f_fach"), note=w("f_note"), sj=w("f_sj")||"[Schuljahr]", lk=w("f_lk")||"[Lehrkraft]";
+  const gegenstand=w("f_gegenstand");
+
+  // Frist
+  let fristSatz="";
+  const z=w("f_zeugnis"), e=w("f_eingang");
+  if(z&&e){
+    const zu=new Date(z+"T00:00:00"), ein=new Date(e+"T00:00:00");
+    const ende=new Date(zu); ende.setDate(ende.getDate()+5);
+    fristSatz=`Das Jahreszeugnis wurde am ${zu.toLocaleDateString("de-AT")} ausgestellt bzw. zugestellt; der Widerspruch langte am ${ein.toLocaleDateString("de-AT")} ein und wurde damit ${ein<=ende?"innerhalb":"außerhalb"} der fünftägigen Frist des § 71 Abs 2 SchUG erhoben.`;
+  }
+
+  // Beweise
+  const bw=[];
+  BEWEISE.forEach(b=>{
+    const c=document.getElementById("b_"+b[0]);
+    if(c&&c.checked){
+      const det=w("bt_"+b[0]);
+      bw.push("– "+b[1]+(det?": "+det:""));
+    }
+  });
+
+  // Lehrplan
+  const lp=[];
+  document.querySelectorAll('#lehrplan input[type=checkbox]:checked').forEach(c=>{
+    const i=c.id.split("_")[1];
+    const det=w("lpt_"+i);
+    lp.push("– "+c.dataset.k+(det?": "+det:""));
+  });
+
+  const text =
+`STELLUNGNAHME DER LEHRKRAFT
+im Widerspruchsverfahren gemäß § 71 SchUG
+
+Schüler:in: ${name}, Klasse ${klasse} (${stufe})
+Unterrichtsgegenstand: ${fach} · Schuljahr ${sj}
+Beurteilung im Jahreszeugnis: ${note}
+Gegenstand des Widerspruchs: ${gegenstand}
+Erstellt am: ${heute()} von ${lk}
+
+1. ZUM VERFAHREN
+${fristSatz||"[Fristprüfung: Daten in Schritt 2 ergänzen.]"}
+
+2. GRUNDLAGEN DER BEURTEILUNG
+Die Jahresbeurteilung beruht gemäß § 20 SchUG iVm § 14 LBVO auf allen im Schuljahr erbrachten Leistungen. Im Einzelnen liegen folgende Leistungsfeststellungen und Aufzeichnungen vor:
+${bw.length?bw.join("\n"):"[Keine Nachweise angekreuzt – Schritt 3 ergänzen.]"}
+
+3. LEHRPLANBEZUG
+Die Leistungsfeststellungen beziehen sich auf folgende Kompetenzbereiche des geltenden Lehrplans (${fach}, ${stufe}):
+${lp.length?lp.join("\n"):"[Keine Kompetenzbereiche angekreuzt – Schritt 4 ergänzen.]"}
+[Exakten Lehrplanwortlaut und Fundstelle vor Abgabe im RIS verifizieren.]
+
+4. ZUSAMMENFASSENDE BEURTEILUNG
+Auf Grundlage der angeführten Leistungsfeststellungen entspricht die Beurteilung mit „${note}" den Kriterien des § 14 LBVO. Die für ein positives Kalkül erforderliche überwiegende Erfüllung der Anforderungen in den wesentlichen Bereichen des Lehrplans lag nicht vor. [Individuell ausführen: konkrete Leistungsdefizite in Bezug auf die oben angekreuzten Kompetenzbereiche.]
+
+Beilagen: [Schularbeiten in Kopie, Notenliste, Aufzeichnungen zur Mitarbeit, Prüfungsprotokoll(e), Nachweis der Frühwarnung]
+
+${lk}
+[Ort], am ${heute()}`;
+
+  document.getElementById("ausgabe").value=text;
+  // Höhe anpassen
+  const ta=document.getElementById("ausgabe");
+  ta.style.height="auto"; ta.style.height=(ta.scrollHeight+10)+"px";
+}
+document.getElementById("neu").addEventListener("click",erzeuge);
+document.getElementById("kopieren").addEventListener("click",async()=>{
+  try{
+    await navigator.clipboard.writeText(document.getElementById("ausgabe").value);
+    const ok=document.getElementById("kopiert_ok"); ok.hidden=false; setTimeout(()=>ok.hidden=true,2200);
+  }catch(err){
+    document.getElementById("ausgabe").select(); document.execCommand("copy");
+  }
+});
+
+/* ---------- Start ---------- */
+bauVerfahren(); bauBeweise(); bauLehrplan(); zeige(1);
+</script>
+</body>
+</html>

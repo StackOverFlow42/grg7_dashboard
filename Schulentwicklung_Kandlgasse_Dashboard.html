@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schul-Organigramm & Dashboard - Kandlgasse</title>
+    <style>
+        :root {
+            --bg-color: #f6f5f2;
+            --text-main: #20241f;
+            --text-muted: #7a7c73;
+            --card-bg: #ffffff;
+            --border-color: #e2e0d8;
+            --border-strong: #c9c6ba;
+            --header-bg: #2f5d4e;
+            --accent-color: #2f5d4e;
+            --serif: Georgia,'Iowan Old Style','Times New Roman',serif;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            color: var(--text-main);
+        }
+        .k7-bar{background:var(--bg-color);border-bottom:1px solid var(--border-strong);padding:10px 40px;}
+        .k7-bar-link{display:inline-flex;align-items:center;gap:8px;color:var(--text-main);text-decoration:none;font-size:.82rem;font-weight:600;}
+        .k7-bar-link:hover{text-decoration:underline;}
+        .k7-bar-mark{font-family:var(--serif);font-weight:700;border:1px solid var(--text-main);width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-size:.65rem;flex-shrink:0;}
+        .k7-bar-sep{opacity:.5;}
+        header {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border-strong);
+        }
+        .header-title-container h1 {
+            margin: 0;
+            font-family: var(--serif);
+            font-size: 1.35rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            color: var(--text-main);
+        }
+        .header-title-container p {
+            margin: 4px 0 0 0;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            opacity: 1;
+        }
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .search-box {
+            padding: 10px 16px;
+            border: 1px solid var(--border-strong);
+            background: var(--card-bg);
+            color: var(--text-main);
+            border-radius: 0;
+            font-size: 0.95rem;
+            width: 280px;
+            outline: none;
+            transition: all 0.2s;
+        }
+        .search-box::placeholder {
+            color: var(--text-muted);
+        }
+        .search-box:focus {
+            background: white;
+            color: var(--text-main);
+            border-color: var(--header-bg);
+            box-shadow: none;
+        }
+        .btn {
+            background-color: var(--text-main);
+            color: white;
+            border: 1px solid var(--text-main);
+            padding: 10px 18px;
+            border-radius: 0;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: none;
+        }
+        .btn:hover {
+            background-color: var(--header-bg);
+            border-color: var(--header-bg);
+            transform: none;
+        }
+        .btn:active {
+            transform: none;
+        }
+        
+        .dashboard {
+            padding: 40px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .stats-banner {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1px;
+            background: var(--border-color);
+            border: 1px solid var(--border-color);
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 0;
+            border: none;
+            box-shadow: none;
+        }
+        .stat-num {
+            font-family: var(--serif);
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--header-bg);
+        }
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        
+        /* Grid Layout */
+        .masonry-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 25px;
+            align-items: start;
+        }
+        
+        .department-card {
+            background: var(--card-bg);
+            border-radius: 0;
+            box-shadow: none;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            transition: border-color 0.2s;
+        }
+        .department-card:hover {
+            transform: none;
+            border-color: var(--border-strong);
+        }
+        
+        .dept-header {
+            padding: 16px 20px;
+            color: white;
+            font-family: var(--serif);
+            font-weight: 700;
+            font-size: 1.05rem;
+            letter-spacing: -0.01em;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .dept-body {
+            padding: 20px;
+        }
+        
+        .team-group {
+            margin-bottom: 20px;
+            background: var(--bg-color);
+            border-radius: 0;
+            padding: 12px 14px;
+            border: 1px solid var(--border-color);
+        }
+        .team-group:last-child {
+            margin-bottom: 0;
+        }
+        .team-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-main);
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .member-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .member-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            padding: 4px 0;
+            gap: 10px;
+        }
+        .member-name-container {
+            display: flex;
+            align-items: center;
+        }
+        .member-item strong {
+            color: var(--text-main);
+        }
+        
+        /* Avatar */
+        .avatar-small {
+            width: 26px;
+            height: 26px;
+            border-radius: 0;
+            background-color: var(--bg-color);
+            color: var(--text-muted);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-right: 10px;
+            flex-shrink: 0;
+            border: 1px solid var(--border-strong);
+        }
+        
+        /* Links styling */
+        .doc-link {
+            display: inline-flex;
+            align-items: center;
+            color: var(--header-bg);
+            text-decoration: none;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: var(--bg-color);
+            padding: 4px 10px;
+            border-radius: 0;
+            border: 1px solid var(--border-color);
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .doc-link:hover {
+            border-color: var(--header-bg);
+        }
+        
+        .search-highlight {
+            background-color: #fbe7a1;
+            color: #5c4419;
+            border-radius: 0;
+            padding: 0 2px;
+            font-weight: bold;
+        }
+        
+        .year-badge {
+            background: var(--card-bg);
+            color: var(--text-main);
+            padding: 8px 14px;
+            border-radius: 0;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border: 1px solid var(--border-strong);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            header {
+                flex-direction: column;
+                gap: 15px;
+                padding: 20px;
+                text-align: center;
+            }
+            .controls {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="k7-bar">
+        <a class="k7-bar-link" href="Lehrkraefte_Dashboard_GRG7_Kandlgasse.html">
+            <span class="k7-bar-mark">K7</span> GRG7 Kandlgasse <span class="k7-bar-sep">·</span> Zur Übersicht
+        </a>
+    </div>
+    <header>
+        <div class="header-title-container">
+            <h1>GRG7 Kandlgasse - Dashboard</h1>
+            <p>Schulentwicklung, Funktionen und agile Arbeitsgruppen</p>
+        </div>
+        <div class="controls">
+            <span class="year-badge" id="yearDisplay">Schuljahr 25/26</span>
+            <button class="btn" id="promoteBtn" title="Klassenbezeichnungen um eine Stufe erhöhen (z.B. 1A -> 2A)">Stufenwechsel simulieren</button>
+            <input type="text" id="searchInput" class="search-box" placeholder="Person, Arbeitsgruppe, KV suchen...">
+        </div>
+    </header>
+
+    <div class="dashboard">
+        <div class="stats-banner">
+            <div class="stat-card">
+                <div class="stat-num" id="stat-bereiche">0</div>
+                <div class="stat-label">Hauptbereiche</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num" id="stat-teams">0</div>
+                <div class="stat-label">Arbeitsgruppen / Themen</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num" id="stat-personen">0</div>
+                <div class="stat-label">Zuständige Personen-Nennungen</div>
+            </div>
+        </div>
+
+        <div class="masonry-grid" id="gridContainer">
+            <!-- Dynamisch befüllt -->
+        </div>
+    </div>
+
+    <script>
+        const rawData = [{"id": "Schwerpunkte", "name": "Schwerpunkte", "image": "https://images.lucid.app/images/da43998d-005c-4365-9c6a-1b13ef6f4809/content", "children": [{"id": "ÖKOLOG", "name": "ÖKOLOG", "image": null, "children": [{"id": "KLE", "name": "KLE", "image": null, "children": []}, {"id": "LEN", "name": "LEN", "image": null, "children": []}, {"id": "SCH", "name": "SCH", "image": null, "children": []}, {"id": "RAS", "name": "RAS", "image": null, "children": []}, {"id": "KER", "name": "KER", "image": null, "children": []}]}, {"id": "Projekt soziale Verantwortung", "name": "Projekt soziale Verantwortung", "image": null, "children": [{"id": "GRA", "name": "GRA", "image": null, "children": []}]}, {"id": "Freiarbeit", "name": "Freiarbeit", "image": null, "children": [{"id": "LEH", "name": "LEH", "image": null, "children": []}]}, {"id": "Berufsorientierung (Koordination)", "name": "Berufsorientierung (Koordination)", "image": null, "children": [{"id": "GRM", "name": "GRM", "image": null, "children": []}]}, {"id": "MINT Gütesiegel", "name": "MINT Gütesiegel", "image": null, "children": [{"id": "RIC", "name": "RIC", "image": null, "children": []}]}, {"id": "Gender + Diversity", "name": "Gender + Diversity", "image": "https://images.lucid.app/images/eff1f453-5c1f-40e4-a20f-2a74615541b6/content", "children": [{"id": "GEL", "name": "GEL", "image": null, "children": []}, {"id": "GRO", "name": "GRO", "image": null, "children": []}, {"id": "DES", "name": "DES", "image": null, "children": []}, {"id": "BOS", "name": "BOS", "image": null, "children": []}, {"id": "URB", "name": "URB", "image": null, "children": []}, {"id": "AIG", "name": "AIG", "image": null, "children": []}, {"id": "PIR", "name": "PIR", "image": null, "children": []}]}, {"id": "WMS", "name": "WMS", "image": null, "children": [{"id": "GRA", "name": "GRA", "image": null, "children": []}, {"id": "PIR", "name": "PIR", "image": null, "children": []}]}, {"id": "Oberstufe", "name": "Oberstufe", "image": null, "children": [{"id": "AND", "name": "AND", "image": null, "children": []}, {"id": "FLO", "name": "FLO", "image": null, "children": []}, {"id": "GRO", "name": "GRO", "image": null, "children": []}, {"id": "PRE", "name": "PRE", "image": null, "children": []}, {"id": "URB", "name": "URB", "image": null, "children": []}, {"id": "PIR", "name": "PIR", "image": null, "children": []}]}, {"id": "Politische Bildung und Demokratie", "name": "Politische Bildung und Demokratie", "image": null, "children": []}, {"id": "Schuldemokratie (UST-Wahl und SSP-Wahl)", "name": "Schuldemokratie (UST-Wahl und SSP-Wahl)", "image": null, "children": [{"id": "HEI", "name": "HEI", "image": null, "children": []}]}, {"id": "Inklusion", "name": "Inklusion", "image": "https://images.lucid.app/images/05a402b0-ea56-41ee-8924-ca86bf1c369d/content", "children": [{"id": "HIR", "name": "HIR", "image": null, "children": []}]}, {"id": "BIG", "name": "BIG", "image": null, "children": [{"id": "BLU", "name": "BLU", "image": null, "children": []}, {"id": "RIS", "name": "RIS", "image": null, "children": []}]}, {"id": "Autismus", "name": "Autismus", "image": null, "children": [{"id": "ADL", "name": "ADL", "image": null, "children": []}, {"id": "OME", "name": "OME", "image": null, "children": []}, {"id": "HIR", "name": "HIR", "image": null, "children": []}, {"id": "BAR (extern)", "name": "BAR (extern)", "image": null, "children": []}, {"id": "AIG (extern)", "name": "AIG (extern)", "image": null, "children": []}]}]}, {"id": "Lernen und lernunterstützende Strukturen", "name": "Lernen und lernunterstützende Strukturen", "image": "https://images.lucid.app/images/698b9375-5764-4dba-914b-ad5d0ce3fab8/content", "children": [{"id": "Nachhilfe Schüler:innen für Schüler:innen", "name": "Nachhilfe Schüler:innen für Schüler:innen", "image": null, "children": [{"id": "ATZ", "name": "ATZ", "image": null, "children": []}]}, {"id": "Känguru der Mathematik", "name": "Känguru der Mathematik", "image": null, "children": [{"id": "REC", "name": "REC", "image": null, "children": []}]}, {"id": "LRS/RST", "name": "LRS/RST", "image": null, "children": [{"id": "DES", "name": "DES", "image": null, "children": []}]}, {"id": "Lernwerkstatt Deutsch", "name": "Lernwerkstatt Deutsch", "image": null, "children": []}, {"id": "Lernwerkstatt Mathe", "name": "Lernwerkstatt Mathe", "image": null, "children": [{"id": "ASP", "name": "ASP", "image": null, "children": []}]}, {"id": "DaZ Koordination", "name": "DaZ Koordination", "image": null, "children": [{"id": "JEG", "name": "JEG", "image": null, "children": []}]}, {"id": "DaF/DaZ", "name": "DaF/DaZ", "image": null, "children": [{"id": "JEG", "name": "JEG", "image": null, "children": []}]}, {"id": "Lesekoordination", "name": "Lesekoordination", "image": null, "children": [{"id": "77k66U4pGyET", "name": "HEL", "image": null, "children": []}]}, {"id": "VWA", "name": "VWA", "image": null, "children": [{"id": "GRV", "name": "GRV", "image": null, "children": []}]}, {"id": "IKM+", "name": "IKM+", "image": null, "children": [{"id": "WEN", "name": "WEN", "image": null, "children": []}]}, {"id": "Fremdsprachenassistenz", "name": "Fremdsprachenassistenz", "image": null, "children": [{"id": "HUE", "name": "HUE", "image": null, "children": []}, {"id": "FEL", "name": "FEL", "image": null, "children": []}]}, {"id": "E4You", "name": "E4You", "image": null, "children": []}, {"id": "Bibliothek", "name": "Bibliothek", "image": "https://images.lucid.app/images/003b5621-8598-4d69-8b6c-822a0b458c82/content", "children": [{"id": "GRA (Leitung)", "name": "GRA (Leitung)", "image": null, "children": []}, {"id": "KOL", "name": "KOL", "image": null, "children": []}]}, {"id": "MIKA-D Testung", "name": "MIKA-D Testung", "image": null, "children": [{"id": "AND", "name": "AND", "image": null, "children": []}]}, {"id": "Lerndesign", "name": "Lerndesign", "image": null, "children": [{"id": "STE", "name": "STE", "image": null, "children": []}]}, {"id": "0Sk6zEXxPSrd", "name": "ILB - Individuelle Lernbetreuung", "image": null, "children": [{"id": "HTk6aNd8vo7s", "name": "ARA", "image": null, "children": []}]}, {"id": "Z5k68LboGAq~", "name": "VHS Nachhilfe", "image": null, "children": [{"id": "-5k6xTyy0XlX", "name": "ARA", "image": null, "children": []}]}]}, {"id": "Info Anmeldung u. Beratung WPF-OST", "name": "Info Anmeldung u. Beratung WPF-OST", "image": "https://images.lucid.app/images/04c95c68-fe1e-4c64-a11d-647c8ff57d2e/content", "children": [{"id": "SCS", "name": "SCS", "image": null, "children": []}]}, {"id": "KV", "name": "Klassen", "image": "https://images.lucid.app/images/4e15ae5d-3b48-4ef8-88b8-8b72bf94d85c/content", "children": [{"id": "1A", "name": "1A", "image": "https://kandlgasse.at/files/grg7/img/Schulgemeinschaft/Klassenfotos/1A.jpg", "children": [{"id": "KAT", "name": "KAT", "image": null, "children": []}]}, {"id": "1B", "name": "1B", "image": null, "children": [{"id": "LEH", "name": "LEH", "image": null, "children": []}, {"id": "WAL(BIG)", "name": "WAL(BIG)", "image": null, "children": []}]}, {"id": "1C", "name": "1C", "image": null, "children": [{"id": "SCS", "name": "SCS", "image": null, "children": []}]}, {"id": "2A", "name": "2A", "image": null, "children": [{"id": "KEL", "name": "KEL", "image": null, "children": []}]}, {"id": "2B", "name": "2B", "image": null, "children": [{"id": "URB", "name": "URB", "image": null, "children": []}]}, {"id": "2C", "name": "2C", "image": null, "children": [{"id": "ZIS", "name": "ZIS", "image": null, "children": []}, {"id": "GOT (BiG)", "name": "GOT (BiG)", "image": null, "children": []}]}, {"id": "2", "name": "2D", "image": null, "children": [{"id": "HAC", "name": "HAC", "image": null, "children": []}]}, {"id": "3A", "name": "3A", "image": "https://kandlgasse.at/files/grg7/img/Schulgemeinschaft/Klassenfotos/3A.jpg", "children": [{"id": "KLE", "name": "KLE", "image": null, "children": []}]}, {"id": "3B", "name": "3B", "image": "https://kandlgasse.at/files/grg7/img/Schulgemeinschaft/Klassenfotos/3B.jpg", "children": [{"id": "HOM", "name": "HOM", "image": null, "children": []}]}, {"id": "3C", "name": "3C", "image": null, "children": [{"id": "DES", "name": "DES", "image": null, "children": []}]}, {"id": "3", "name": "3D", "image": null, "children": [{"id": "GRA", "name": "GRA", "image": null, "children": []}, {"id": "BLU(BiG)", "name": "BLU(BiG)", "image": null, "children": []}]}, {"id": "4A", "name": "4A", "image": null, "children": [{"id": "STE", "name": "STE", "image": null, "children": []}]}, {"id": "4B", "name": "4B", "image": null, "children": [{"id": "LOZ", "name": "LOZ", "image": null, "children": []}]}, {"id": "4C", "name": "4C", "image": null, "children": [{"id": "BOS", "name": "BOS", "image": null, "children": []}]}, {"id": "4", "name": "4D", "image": null, "children": [{"id": "DEL", "name": "DEL", "image": null, "children": []}, {"id": "RIS (BIG)", "name": "RIS (BIG)", "image": null, "children": []}]}, {"id": "5A", "name": "5A", "image": null, "children": [{"id": "PLA", "name": "PLA", "image": null, "children": []}]}, {"id": "5B", "name": "5B", "image": null, "children": [{"id": "PRE", "name": "PRE", "image": null, "children": []}]}, {"id": "6A", "name": "6A", "image": null, "children": [{"id": "LEG", "name": "LEG", "image": null, "children": []}]}, {"id": "6B", "name": "6B", "image": null, "children": [{"id": "KER", "name": "KER", "image": null, "children": []}]}, {"id": "7A", "name": "7A", "image": null, "children": [{"id": "KOL", "name": "KOL", "image": null, "children": []}]}, {"id": "7B", "name": "7B", "image": null, "children": [{"id": "GRV", "name": "GRV", "image": null, "children": []}]}, {"id": "8A", "name": "8A", "image": null, "children": [{"id": "MON", "name": "MON", "image": null, "children": []}]}, {"id": "8B", "name": "8B", "image": null, "children": [{"id": "HUE", "name": "HUE", "image": null, "children": []}]}, {"id": "8C", "name": "8C", "image": null, "children": [{"id": "HAB", "name": "HAB", "image": null, "children": []}]}]}, {"id": "Community", "name": "Community", "image": "https://kandlgasse.at/files/grg7/img/Schulgemeinschaft/Lehrerinnenfotos/Lehrer_2024_25.jpg", "children": [{"id": "Schulballorganisation", "name": "Schulballorganisation", "image": "https://images.lucid.app/images/7249ed2d-7c2f-47ff-b111-efee68aa9f81/content", "children": [{"id": "GRO", "name": "GRO", "image": null, "children": []}, {"id": "KAT", "name": "KAT", "image": null, "children": []}]}, {"id": "Kaffee", "name": "Kaffee", "image": "https://images.lucid.app/images/6ca6cb21-e0b2-4e92-9265-4f30ed8ec345/content", "children": [{"id": "URB", "name": "URB", "image": null, "children": []}]}]}, {"id": "Support-System", "name": "Support-System", "image": "https://images.lucid.app/images/b1de9dcf-11a8-4a86-aeef-755a2a91b266/content", "children": [{"id": "Peer-Mediation", "name": "Peer-Mediation", "image": null, "children": [{"id": "GRA (ausgebildete Peers)", "name": "GRA (ausgebildete Peers)", "image": null, "children": []}, {"id": "LAN", "name": "LAN", "image": null, "children": []}, {"id": "GEB", "name": "GEB", "image": null, "children": []}]}, {"id": "AHS Schüler:innenberatung", "name": "AHS Schüler:innenberatung", "image": null, "children": [{"id": "LEG KER", "name": "LEG KER", "image": null, "children": []}]}, {"id": "Beratungslehrerin", "name": "Beratungslehrerin", "image": null, "children": [{"id": "BAR", "name": "BAR", "image": null, "children": []}]}, {"id": "WMS-Volksschule-Lehrperson", "name": "WMS-Volksschule-Lehrperson", "image": null, "children": [{"id": "ANT", "name": "ANT", "image": null, "children": []}]}, {"id": "Jugendcoach", "name": "Jugendcoach", "image": null, "children": []}, {"id": "Kinderschutz-Team", "name": "Kinderschutz-Team", "image": null, "children": [{"id": "AIG", "name": "AIG", "image": null, "children": []}]}, {"id": "No Blame Approach", "name": "No Blame Approach", "image": null, "children": [{"id": "GEL", "name": "GEL", "image": null, "children": []}]}, {"id": "Schulpsychologin", "name": "Schulpsychologin", "image": null, "children": [{"id": "Clara Steinkogler-Kieslich", "name": "Clara Steinkogler-Kieslich", "image": null, "children": []}]}, {"id": "Nahtstelle 14+", "name": "Nahtstelle 14+", "image": null, "children": [{"id": "LEG", "name": "LEG", "image": null, "children": []}]}, {"id": "Übergang Volksschule Nahtstelle 10+", "name": "Übergang Volksschule Nahtstelle 10+", "image": null, "children": [{"id": "KKO", "name": "KKO", "image": null, "children": []}]}]}, {"id": "Nachmittagsbetreuung", "name": "Nachmittagsbetreuung", "image": "https://images.lucid.app/images/e8d96c4f-f987-49ad-a73a-adb195fc17d3/content", "children": [{"id": "Nachmittagsbetreuungsleitung", "name": "Nachmittagsbetreuungsleitung", "image": "https://images.lucid.app/images/53e9853d-b762-403b-8979-cc91332f6a63/content", "children": [{"id": "ATZ", "name": "ATZ", "image": null, "children": []}, {"id": "HEI", "name": "HEI", "image": null, "children": []}]}, {"id": "Mittagsaufsichtskoordination", "name": "Mittagsaufsichtskoordination", "image": "https://images.lucid.app/images/1821d0e0-fbfb-4fa3-aeb5-13fe95ee71e2/content", "children": [{"id": "WEN", "name": "WEN", "image": null, "children": []}, {"id": "GRM", "name": "GRM", "image": null, "children": []}]}]}, {"id": "Fachgruppen und sonstige Kustodiate", "name": "Fachgruppen und sonstige Kustodiate", "image": "https://images.lucid.app/images/f0c055ce-9787-41ac-a4ba-5c8a8c06a41a/content", "children": [{"id": "Deutsch", "name": "Deutsch", "image": "https://images.lucid.app/images/9027fb3d-b59a-4468-8241-4d0856c0086e/content", "children": [{"id": "AND/BOS", "name": "AND/BOS", "image": null, "children": []}]}, {"id": "Mathematik", "name": "Mathematik", "image": "https://images.lucid.app/images/37638730-38fe-49dd-aaa7-de475223c7e1/content", "children": [{"id": "KAR", "name": "KAR", "image": null, "children": []}]}, {"id": "Englisch", "name": "Englisch", "image": "https://images.lucid.app/images/a07baf04-a929-45f9-b4f5-8a7898b77189/content", "children": [{"id": "HUE", "name": "HUE", "image": null, "children": []}]}, {"id": "ROM", "name": "ROM", "image": null, "children": [{"id": "MAR (ab Herbst 25 ECK)", "name": "MAR (ab Herbst 25 ECK)", "image": null, "children": []}]}, {"id": "GWK", "name": "GWK", "image": null, "children": [{"id": "HAB", "name": "HAB", "image": null, "children": []}]}, {"id": "GPB", "name": "GPB", "image": null, "children": [{"id": "HAB", "name": "HAB", "image": null, "children": []}]}, {"id": "BIUK", "name": "BIUK", "image": "https://images.lucid.app/images/52721f2b-a86b-4323-b63b-bb72904d1ddd/content", "children": [{"id": "GEL", "name": "GEL", "image": null, "children": []}]}, {"id": "PH", "name": "PH", "image": null, "children": [{"id": "RIC", "name": "RIC", "image": null, "children": []}]}, {"id": "CH", "name": "CH", "image": "https://images.lucid.app/images/842317f7-638c-4b5c-9ccc-248701e4a011/content", "children": [{"id": "GRO", "name": "GRO", "image": null, "children": []}]}, {"id": "L", "name": "L", "image": null, "children": [{"id": "KAT/GRM", "name": "KAT/GRM", "image": null, "children": []}]}, {"id": "MU", "name": "MU", "image": null, "children": [{"id": "NEN", "name": "NEN", "image": null, "children": []}]}, {"id": "Kunst und Gestaltung (KuG)", "name": "Kunst und Gestaltung (KuG)", "image": null, "children": [{"id": "Mag. Frank Gassner (GAS)", "name": "Mag. Frank Gassner (GAS)", "image": null, "children": []}]}, {"id": "TuD", "name": "TuD", "image": null, "children": [{"id": "FOR/KIR", "name": "FOR/KIR", "image": null, "children": []}]}, {"id": "REL", "name": "REL", "image": null, "children": []}, {"id": "GZ und DG", "name": "GZ und DG", "image": null, "children": [{"id": "KAR", "name": "KAR", "image": null, "children": []}]}, {"id": "BSP", "name": "BSP", "image": "https://images.lucid.app/images/51c3d683-a1f3-4a29-b42c-cd0baee52347/content", "children": [{"id": "SBL", "name": "SBL", "image": null, "children": []}]}, {"id": "PP", "name": "PP", "image": null, "children": []}, {"id": "INF", "name": "INF", "image": null, "children": [{"id": "LEI", "name": "LEI", "image": null, "children": []}]}, {"id": "DIGI", "name": "DIGI", "image": null, "children": [{"id": "LEI (Teil von INF aktuell)", "name": "LEI (Teil von INF aktuell)", "image": null, "children": []}]}, {"id": "DaZ", "name": "DaZ", "image": "https://images.lucid.app/images/7479ea7e-5cff-4c90-bda1-03992fe74fd5/content", "children": []}, {"id": "ETH", "name": "ETH", "image": "https://images.lucid.app/images/908c1de6-eae4-41f9-a805-1dcc0bba90bd/content", "children": [{"id": "GEL", "name": "GEL", "image": null, "children": []}]}, {"id": "AV", "name": "AV", "image": null, "children": [{"id": "SBL", "name": "SBL", "image": null, "children": []}]}, {"id": "EDV", "name": "EDV", "image": null, "children": [{"id": "WEI (MDM)", "name": "WEI (MDM)", "image": null, "children": []}, {"id": "LEI (IT-Manager)", "name": "LEI (IT-Manager)", "image": null, "children": []}]}, {"id": "WPF-Koordination", "name": "WPF-Koordination", "image": null, "children": [{"id": "SCS", "name": "SCS", "image": null, "children": []}]}, {"id": "Lerncoaching-Koordination", "name": "Lerncoaching-Koordination", "image": null, "children": [{"id": "PIR", "name": "PIR", "image": null, "children": []}]}]}, {"id": "Schulveranstaltungen", "name": "Schulveranstaltungen", "image": "https://images.lucid.app/images/f939f70b-0d6f-45a4-b3af-c88bfb109a11/content", "children": [{"id": "Tag der offenen Tür Tag der Wiener Schulen", "name": "Tag der offenen Tür Tag der Wiener Schulen", "image": null, "children": [{"id": "RIC", "name": "RIC", "image": null, "children": []}]}, {"id": "Leitung Schulveranstaltungen", "name": "Leitung Schulveranstaltungen", "image": null, "children": [{"id": "AIG", "name": "AIG", "image": null, "children": []}, {"id": "LEN", "name": "LEN", "image": null, "children": []}]}, {"id": "Schulfest", "name": "Schulfest", "image": null, "children": [{"id": "o3k6-rnOR09S", "name": "MOT", "image": null, "children": []}]}, {"id": "Sportfest", "name": "Sportfest", "image": null, "children": [{"id": "x3k6t7uIr09e", "name": "MOT", "image": null, "children": []}]}]}, {"id": "QMS-Team", "name": "QMS-Team", "image": "https://images.lucid.app/images/ede3fa19-defa-4260-8f51-8651f6ea1d04/content", "children": [{"id": "PIR", "name": "PIR", "image": null, "children": []}, {"id": "MOT", "name": "MOT", "image": null, "children": []}, {"id": "HEI", "name": "HEI", "image": null, "children": []}, {"id": "ARA", "name": "ARA", "image": null, "children": []}]}, {"id": "Öffentlichkeitsarbeit und PR", "name": "Öffentlichkeitsarbeit und PR", "image": "https://images.lucid.app/images/0c7932d2-9620-414f-a7bb-7ab804548760/content", "children": [{"id": "Jahresbericht", "name": "Jahresbericht", "image": null, "children": []}, {"id": "Schüler:innenzeitung", "name": "Schüler:innenzeitung", "image": null, "children": [{"id": "LOZ", "name": "LOZ", "image": null, "children": []}]}, {"id": "Homepage", "name": "Homepage", "image": null, "children": [{"id": "LEI", "name": "LEI", "image": null, "children": []}]}, {"id": "Lehrer:innenfotos", "name": "Lehrer:innenfotos", "image": null, "children": [{"id": "DEI (Vertretung: PRE)", "name": "DEI (Vertretung: PRE)", "image": null, "children": []}]}, {"id": "Schaukästen/Schulhausgestaltung", "name": "Schaukästen/Schulhausgestaltung", "image": null, "children": []}, {"id": "Social-Media-Team", "name": "Social-Media-Team", "image": null, "children": [{"id": "FLO", "name": "FLO", "image": null, "children": []}, {"id": "LOZ", "name": "LOZ", "image": null, "children": []}, {"id": "ZAN", "name": "ZAN", "image": null, "children": []}]}]}, {"id": "Interessensvertretung", "name": "Interessensvertretung", "image": "https://images.lucid.app/images/d7a685d9-5960-4e78-b03f-e9097cf08102/content", "children": [{"id": "SGA", "name": "SGA", "image": "https://images.lucid.app/images/432498d1-d26f-48d5-9bae-e2ab3e333fa6/content", "children": [{"id": "LOZ", "name": "LOZ", "image": null, "children": []}, {"id": "PIR", "name": "PIR", "image": null, "children": []}, {"id": "SCS", "name": "SCS", "image": null, "children": []}]}, {"id": "PV", "name": "PV", "image": "https://images.lucid.app/images/4c0e7b6a-f3db-431c-9110-354b6fc0a3fe/content", "children": [{"id": "LEG", "name": "LEG", "image": null, "children": []}, {"id": "KAT", "name": "KAT", "image": null, "children": []}, {"id": "GRO", "name": "GRO", "image": null, "children": []}, {"id": "DES", "name": "DES", "image": null, "children": []}]}]}];
+        const gridContainer = document.getElementById('gridContainer');
+        const searchInput = document.getElementById('searchInput');
+        const promoteBtn = document.getElementById('promoteBtn');
+        const yearDisplay = document.getElementById('yearDisplay');
+        
+        // Premium modern desaturated colors
+        const colors = ['#1e3a8a', '#0f766e', '#1e40af', '#6b21a8', '#9a3412', '#86198f', '#334155', '#166534', '#c2410c'];
+        
+        let currentYearOffset = 0;
+
+        function formatLinks(text) {
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            let hasLink = false;
+            let linkHtml = "";
+            const cleanText = text.replace(urlRegex, function(url) {
+                hasLink = true;
+                linkHtml = `<a href="${url}" target="_blank" class="doc-link">🔗 Teams-Link</a>`;
+                return "";
+            });
+            return { text: cleanText.trim().replace(/,\s*$/, '').replace(/^,\s*/, ''), linkHtml, hasLink };
+        }
+
+        function getInitials(name) {
+            const clean = name.replace(/[^a-zA-ZäöüÄÖÜß\s]/g, '').trim();
+            const parts = clean.split(/\s+/);
+            let initials = "";
+            for (let i = 0; i < Math.min(2, parts.length); i++) {
+                if (parts[i].length > 0) initials += parts[i][0].toUpperCase();
+            }
+            return initials || "?";
+        }
+
+        function countStats(data) {
+            let bereiche = data.length;
+            let teams = 0;
+            let personen = 0;
+            
+            data.forEach(top => {
+                if (top.children) {
+                    teams += top.children.length;
+                    top.children.forEach(sub => {
+                        if (sub.children) personen += sub.children.length;
+                    });
+                }
+            });
+            
+            document.getElementById('stat-bereiche').innerText = bereiche;
+            document.getElementById('stat-teams').innerText = teams;
+            document.getElementById('stat-personen').innerText = personen;
+        }
+
+        function renderGrid(data, filterQuery = "") {
+            gridContainer.innerHTML = '';
+            
+            data.forEach((topNode, index) => {
+                const color = colors[index % colors.length];
+                const card = document.createElement('div');
+                card.className = 'department-card';
+                
+                let bodyHtml = '';
+                let hasMatchingChild = false;
+                
+                const topNameMatch = highlightText(topNode.name, filterQuery);
+                if (topNode.name.toLowerCase().includes(filterQuery)) hasMatchingChild = true;
+                
+                if (topNode.children && topNode.children.length > 0) {
+                    topNode.children.forEach(subNode => {
+                        let subNodeName = subNode.name;
+                        
+                        // Class promotion logic
+                        if (isClassName(subNodeName) && currentYearOffset > 0) {
+                            subNodeName = incrementClass(subNodeName, currentYearOffset);
+                        }
+                        if (subNodeName === "Absolventen" && currentYearOffset > 0 && isClassName(subNode.name)) {
+                            return;
+                        }
+
+                        let subHasMatch = subNodeName.toLowerCase().includes(filterQuery);
+                        const subNameMatch = highlightText(subNodeName, filterQuery);
+                        
+                        let membersHtml = '';
+                        
+                        if (subNode.children && subNode.children.length > 0) {
+                            subNode.children.forEach(person => {
+                                const { text: personNamePlain, linkHtml } = formatLinks(person.name);
+                                
+                                if (personNamePlain.toLowerCase().includes(filterQuery)) {
+                                    subHasMatch = true;
+                                }
+                                
+                                const personMatch = highlightText(personNamePlain, filterQuery);
+                                
+                                membersHtml += `
+                                    <li class="member-item">
+                                        <div class="member-name-container">
+                                            <div class="avatar-small">${getInitials(personNamePlain)}</div>
+                                            <strong>${personMatch}</strong>
+                                        </div>
+                                        ${linkHtml}
+                                    </li>
+                                `;
+                            });
+                        }
+                        
+                        if (subHasMatch || filterQuery === "" || topNode.name.toLowerCase().includes(filterQuery)) {
+                            hasMatchingChild = true;
+                            bodyHtml += `
+                                <div class="team-group">
+                                    <div class="team-title">${subNameMatch}</div>
+                                    ${membersHtml ? `<ul class="member-list">${membersHtml}</ul>` : '<span style="font-size:0.85rem; color:#94a3b8; font-style:italic;">Keine Personen zugewiesen</span>'}
+                                </div>
+                            `;
+                        }
+                    });
+                }
+                
+                card.innerHTML = `
+                    <div class="dept-header" style="background-color: ${color}">
+                        <span>${topNameMatch}</span>
+                    </div>
+                    <div class="dept-body">
+                        ${bodyHtml || '<p style="color:#94a3b8; font-style:italic; font-size:0.9rem;">Keine Gruppen</p>'}
+                    </div>
+                `;
+                
+                if (hasMatchingChild || filterQuery === "") {
+                    gridContainer.appendChild(card);
+                }
+            });
+            
+            if (gridContainer.innerHTML === '') {
+                gridContainer.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding: 60px; color:#64748b; font-weight:500;">Keine Ergebnisse für "${filterQuery}" gefunden.</div>`;
+            }
+        }
+
+        function highlightText(text, query) {
+            if (!query) return text;
+            const regex = new RegExp(`(${query})`, "gi");
+            return text.replace(regex, "<span class='search-highlight'>$1</span>");
+        }
+
+        function isClassName(str) {
+            return /^[1-8][A-Z]?$/.test(str.trim());
+        }
+
+        function incrementClass(str, offset) {
+            const match = str.trim().match(/^([1-8])([A-Z]?)$/);
+            if (match) {
+                let num = parseInt(match[1]) + offset;
+                if (num > 8) return "Absolventen (Abschied)";
+                return num + match[2];
+            }
+            return str;
+        }
+
+        searchInput.addEventListener('input', (e) => {
+            renderGrid(rawData, e.target.value.toLowerCase().trim());
+        });
+
+        promoteBtn.addEventListener('click', () => {
+            currentYearOffset++;
+            const startYear = 25 + currentYearOffset;
+            const endYear = 26 + currentYearOffset;
+            yearDisplay.innerText = `Schuljahr ${startYear}/${endYear}`;
+            renderGrid(rawData, searchInput.value.toLowerCase().trim());
+        });
+
+        // Init
+        countStats(rawData);
+        renderGrid(rawData);
+    </script>
+</body>
+</html>

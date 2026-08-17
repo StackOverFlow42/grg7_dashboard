@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organigramm - GRG7 Kandlgasse</title>
+    <style>
+        :root {
+            --bg-color: #f6f5f2;
+            --text-main: #20241f;
+            --text-muted: #7a7c73;
+            --card-bg: #ffffff;
+            --border-color: #e2e0d8;
+            --border-strong: #c9c6ba;
+            --header-bg: #2c3e6b;
+            --accent-color: #2c3e6b;
+            --accent-hover: #1f2d4d;
+            --serif: Georgia,'Iowan Old Style','Times New Roman',serif;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+        .k7-bar{background:var(--bg-color);border-bottom:1px solid var(--border-strong);padding:10px 40px;}
+        .k7-bar-link{display:inline-flex;align-items:center;gap:8px;color:var(--text-main);text-decoration:none;font-size:.82rem;font-weight:600;}
+        .k7-bar-link:hover{text-decoration:underline;}
+        .k7-bar-mark{font-family:var(--serif);font-weight:700;border:1px solid var(--text-main);width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-size:.65rem;flex-shrink:0;}
+        .k7-bar-sep{opacity:.5;}
+        header {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 20px 40px;
+            border-bottom: 1px solid var(--border-strong);
+        }
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        header h1 {
+            margin: 0;
+            font-family: var(--serif);
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            color: var(--text-main);
+        }
+        
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            gap: 22px;
+            margin-top: 18px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0;
+        }
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            padding: 10px 0;
+            cursor: pointer;
+            font-size: 0.92rem;
+            font-weight: 600;
+            transition: all 0.15s;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+        }
+        .tab-btn:hover {
+            color: var(--text-main);
+        }
+        .tab-btn.active {
+            color: var(--text-main);
+            background: none;
+            border-bottom: 2px solid var(--header-bg);
+        }
+        
+        /* Controls inside toolbar */
+        .toolbar {
+            background: white;
+            padding: 15px 40px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            width: 100%;
+            justify-content: space-between;
+        }
+        .search-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-grow: 1;
+            max-width: 500px;
+        }
+        .search-box {
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 0;
+            font-size: 0.95rem;
+            width: 100%;
+            outline: none;
+            transition: border-color 0.2s;
+            background: var(--card-bg);
+            color: var(--text-main);
+        }
+        .search-box:focus {
+            border-color: var(--accent-color);
+        }
+        .btn {
+            background-color: var(--text-main);
+            color: white;
+            border: 1px solid var(--text-main);
+            padding: 10px 18px;
+            border-radius: 0;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: background-color 0.2s;
+            white-space: nowrap;
+        }
+        .btn:hover {
+            background-color: var(--accent-hover);
+            border-color: var(--accent-hover);
+        }
+        .year-badge {
+            background: var(--card-bg);
+            color: var(--text-main);
+            border: 1px solid var(--border-strong);
+            padding: 6px 14px;
+            border-radius: 0;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+        
+        /* Main Container */
+        .content-container {
+            padding: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+            min-height: 60vh;
+        }
+        
+        .tab-content {
+            display: block;
+        }
+        .hidden {
+            display: none !important;
+        }
+        
+        /* Welcome Tab Styling */
+        .welcome-card {
+            background: white;
+            border-radius: 0;
+            padding: 40px;
+            box-shadow: none;
+            border: 1px solid var(--border-color);
+            max-width: 850px;
+            margin: 0 auto;
+        }
+        .welcome-card h2 {
+            color: var(--text-main);
+            font-family: var(--serif);
+            margin-top: 0;
+            font-size: 1.7rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+        .welcome-intro {
+            font-size: 1.1rem;
+            color: var(--text-main);
+            margin: 25px 0;
+            font-weight: 500;
+        }
+        .section-title {
+            font-size: 1.05rem;
+            font-family: var(--serif);
+            color: var(--header-bg);
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 25px 0;
+        }
+        .feature-item {
+            position: relative;
+            padding-left: 24px;
+            margin-bottom: 12px;
+            font-size: 1rem;
+            color: var(--text-main);
+        }
+        .feature-item::before {
+            content: "—";
+            position: absolute;
+            left: 0;
+            color: var(--header-bg);
+            font-weight: bold;
+            top: 0;
+        }
+        .feature-item strong {
+            color: var(--header-bg);
+        }
+        
+        /* Farblegende Tab Styling */
+        .legend-container {
+            background: white;
+            border-radius: 0;
+            padding: 30px;
+            box-shadow: none;
+            border: 1px solid var(--border-color);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .legend-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 12px 18px;
+            background: var(--bg-color);
+            border-radius: 0;
+            border: 1px solid var(--border-color);
+        }
+        .legend-color-box {
+            width: 30px;
+            height: 30px;
+            border-radius: 0;
+            flex-shrink: 0;
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
+        }
+        .legend-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        /* Gesamtübersicht Tab Styling */
+        .masonry-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 25px;
+            align-items: start;
+        }
+        
+        .department-card {
+            background: var(--card-bg);
+            border-radius: 0;
+            box-shadow: none;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            transition: border-color 0.2s;
+        }
+        .department-card:hover {
+            border-color: var(--border-strong);
+        }
+        
+        .dept-header {
+            padding: 16px 22px;
+            color: white;
+            font-family: var(--serif);
+            font-weight: 700;
+            font-size: 1.1rem;
+            letter-spacing: -0.2px;
+        }
+        
+        .dept-body {
+            padding: 20px 24px;
+        }
+        
+        .team-group {
+            margin-bottom: 22px;
+        }
+        .team-group:last-child {
+            margin-bottom: 0;
+        }
+        .team-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-main);
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+        
+        .member-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .member-item {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        
+        /* Avatar */
+        .avatar-small {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background-color: #e2e8f0;
+            color: #475569;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        
+        /* Links styling */
+        .doc-link {
+            display: inline-flex;
+            align-items: center;
+            color: var(--header-bg);
+            text-decoration: none;
+            font-size: 0.8rem;
+            background: var(--bg-color);
+            padding: 3px 10px;
+            border-radius: 0;
+            margin-left: auto;
+            border: 1px solid var(--border-color);
+            font-weight: 500;
+        }
+        .doc-link:hover {
+            border-color: var(--header-bg);
+        }
+        
+        .search-highlight {
+            background-color: #fbe7a1;
+            color: #5c4419;
+            border-radius: 0;
+            padding: 0 2px;
+            font-weight: bold;
+        }
+        
+        /* Selector view for Teilbereiche */
+        .selector-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            align-items: center;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 0;
+            border: 1px solid var(--border-color);
+        }
+        .selector-label {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        .dept-select {
+            padding: 10px 15px;
+            font-size: 1rem;
+            border-radius: 0;
+            border: 1px solid var(--border-color);
+            outline: none;
+            min-width: 300px;
+            background: white;
+            color: var(--text-main);
+        }
+        .dept-select:focus {
+            border-color: var(--accent-color);
+        }
+        
+        .welcome-action-btn {
+            display: inline-block;
+            margin-top: 15px;
+            background: var(--text-main);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 0;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.2s;
+            cursor: pointer;
+            border: none;
+            font-size: 0.95rem;
+        }
+        .welcome-action-btn:hover {
+            background: var(--accent-hover);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header {
+                padding: 15px;
+            }
+            .tab-nav {
+                flex-wrap: wrap;
+            }
+            .tab-btn {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
+            .toolbar {
+                padding: 15px;
+            }
+            .content-container {
+                padding: 20px 15px;
+            }
+            .selector-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .dept-select {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="k7-bar">
+        <a class="k7-bar-link" href="Lehrkraefte_Dashboard_GRG7_Kandlgasse.html">
+            <span class="k7-bar-mark">K7</span> GRG7 Kandlgasse <span class="k7-bar-sep">·</span> Zur Übersicht
+        </a>
+    </div>
+
+    <header>
+        <div class="header-top">
+            <h1>GRG7 Kandlgasse &mdash; Schulstruktur & Dashboard</h1>
+        </div>
+        <div class="tab-nav">
+            <button class="tab-btn active" data-tab="tab-willkommen" onclick="switchTab('tab-willkommen')">Willkommen</button>
+            <button class="tab-btn" data-tab="tab-legende" onclick="switchTab('tab-legende')">Farblegende</button>
+            <button class="tab-btn" data-tab="tab-gesamt" onclick="switchTab('tab-gesamt')">Gesamtübersicht</button>
+            <button class="tab-btn" data-tab="tab-teilbereiche" onclick="switchTab('tab-teilbereiche')">Teilbereiche</button>
+        </div>
+    </header>
+
+    <!-- Global contextual tools toolbar (visible only on full or partial views) -->
+    <div id="globalToolbar" class="toolbar hidden">
+        <div class="controls">
+            <div class="search-container">
+                <input type="text" id="searchInput" class="search-box" placeholder="Name, Team, Klasse oder Rolle filtern...">
+            </div>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <span class="year-badge" id="yearDisplay">Schuljahr 2025/26</span>
+                <button class="btn" id="promoteBtn" title="Simuliert das Vorrücken aller Klassenbezeichnungen um 1 Jahr">Stufenwechsel</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-container">
+        
+        <!-- TAB 1: WILLKOMMEN -->
+        <div id="tab-willkommen" class="tab-content">
+            <div class="welcome-card">
+                <h2>Willkommen zum Organigramm des GRG7 Kandlgasse</h2>
+                <p class="welcome-intro">Liebe Kolleginnen und Kollegen,</p>
+                <p>dieses Organigramm soll Ihnen einen klaren Überblick über die Organisationsstruktur unserer Schule bieten. Es dient sowohl als offizieller Bestandteil unseres QM-Handbuchs als auch als praktisches Nachschlagewerk für den Schulalltag.</p>
+                
+                <div class="section-title">Zielsetzung</div>
+                <ul class="feature-list">
+                    <li class="feature-item"><strong>Transparenz schaffen:</strong> Klare Darstellung der Verantwortlichkeiten und Zuständigkeiten</li>
+                    <li class="feature-item"><strong>Orientierung geben:</strong> Schnelles Auffinden der richtigen Ansprechpersonen</li>
+                    <li class="feature-item"><strong>Kommunikationswege verdeutlichen:</strong> Optimierte Abläufe in unserem Schulalltag</li>
+                </ul>
+                
+                <div class="section-title">Bedienung</div>
+                <p>Das Organigramm ist in mehrere Reiter gegliedert:</p>
+                <ul class="feature-list" style="margin-bottom: 15px;">
+                    <li class="feature-item"><strong>Farblegende:</strong> Erklärt die farbliche Codierung verschiedenen Bereiche</li>
+                    <li class="feature-item"><strong>Gesamtübersicht:</strong> Zeigt die vollständige Organisationsstruktur auf einen Blick</li>
+                    <li class="feature-item"><strong>Teilbereiche:</strong> Detaillierte Aufschlüsselung der einzelnen Abteilungen und Teams</li>
+                </ul>
+                <p>Klicken Sie einfach auf den jeweiligen Reiter, um zum gewünschten Bereich zu navigieren.</p>
+                <p style="margin-top: 25px; font-weight: 500; color: var(--header-bg);">Wir hoffen, dass dieses Organigramm Ihren Arbeitsalltag erleichtert.</p>
+                
+                <button class="welcome-action-btn" onclick="switchTab('tab-gesamt')">Zur Gesamtübersicht wechseln →</button>
+            </div>
+        </div>
+
+        <!-- TAB 2: FARBLEGENDE -->
+        <div id="tab-legende" class="tab-content hidden">
+            <div class="legend-container">
+                <h2 style="margin-top: 0; color: var(--header-bg);">Bereichs-Farbcodierung</h2>
+                <p>Die Hauptbereiche und Abteilungen unserer Schule sind farblich wie folgt codiert:</p>
+                <div class="legend-grid" id="legendGrid">
+                    <!-- Dynamic legend items injected here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: GESAMTÜBERSICHT -->
+        <div id="tab-gesamt" class="tab-content hidden">
+            <div class="masonry-grid" id="gridContainer">
+                <!-- All Cards injected here -->
+            </div>
+        </div>
+
+        <!-- TAB 4: TEILBEREICHE -->
+        <div id="tab-teilbereiche" class="tab-content hidden">
+            <div class="selector-container">
+                <span class="selector-label">Abteilung/Bereich auswählen:</span>
+                <select id="deptSelect" class="dept-select" onchange="renderTeilbereich()">
+                    <!-- Options injected here -->
+                </select>
+            </div>
+            <div id="singleCardContainer" style="max-width: 600px; margin: 0 auto;">
+                <!-- Chosen single department card will show up here -->
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Inject tree data securely
+        const rawData = [{"id": "Schwerpunkte", "name": "Schwerpunkte", "image": "https://images.lucid.app/images/da43998d-005c-4365-9c6a-1b13ef6f4809/content", "children": [{"id": "ÖKOLOG", "name": "ÖKOLOG", "image": null, "children": [{"id": "KLE", "name": "KLE", "image": null, "children": []}, {"id": "LEN", "name": "LEN", "image": null, "children": []}, {"id": "SCH", "name": "SCH", "image": null, "children": []}, {"id": "RAS", "name": "RAS", "image": null, "children": []}, {"id": "KER", "name": "KER", "image": null, "children": []}]}, {"id": "Projekt soziale Verantwortung", "name": "Projekt soziale Verantwortung", "image": null, "children": [{"id": "GRA", "name": "GRA", "image": null, "children": []}]}, {"id": "Freiarbeit", "name": "Freiarbeit", "image": null, "children": [{"id": "LEH", "name": "LEH", "image": null, "children": []}]}, {"id": "Berufsorientierung (Koordination)", "name": "Berufsorientierung (Koordination)", "image": null, "children": [{"id": "GRM", "name": "GRM", "image": null, "children": []}]}, {"id": "MINT Gütesiegel", "name": "MINT Gütesiegel", "image": null, "children": [{"id": "RIC", "name": "RIC", "image": null, "children": []}]}, {"id": "Gender + Diversity", "name": "Gender + Diversity", "image": "https://images.lucid.app/images/eff1f453-5c1f-40e4-a20f-2a74615541b6/content", "children": [{"id": "GEL", "name": "GEL", "image": null, "children": []}, {"id": "GRO", "name": "GRO", "image": null, "children": []}, {"id": "DES", "name": "DES", "image": null, "children": []}, {"id": "BOS", "name": "BOS", "image": null, "children": []}, {"id": "URB", "name": "URB", "image": null, "children": []}, {"id": "AIG", "name": "AIG", "image": null, "children": []}, {"id": "PIR", "name": "PIR", "image": null, "children": []}]}, {"id": "WMS", "name": "WMS", "image": null, "children": [{"id": "GRA", "name": "GRA", "image": null, "children": []}, {"id": "PIR", "name": "PIR", "image": null, "children": []}]}, {"id": "Oberstufe", "name": "Oberstufe", "image": null, "children": [{"id": "AND", "name": "AND", "image": null, "children": []}, {"id": "FLO", "name": "FLO", "image": null, "children": []}, {"id": "GRO", "name": "GRO", "image": null, "children": []}, {"id": "PRE", "name": "PRE", "image": null, "children": []}, {"id": "URB", "name": "URB", "image": null, "children": []}, {"id": "PIR", "name": "PIR", "image": null, "children": []}]}, {"id": "Politische Bildung und Demokratie", "name": "Politische Bildung und Demokratie", "image": null, "children": []}, {"id": "Schuldemokratie (UST-Wahl und SSP-Wahl)", "name": "Schuldemokratie (UST-Wahl und SSP-Wahl)", "image": null, "children": [{"id": "HEI", "name": "HEI", "image": null, "children": []}]}, {"id": "Inklusion", "name": "Inklusion", "image": "https://images.lucid.app/images/05a402b0-ea56-41ee-8924-ca86bf1c369d/content", "children": [{"id": "HIR", "name": "HIR", "image": null, "children": []}]}, {"id": "BIG", "name": "BIG", "image": null, "children": [{"id": "BLU", "name": "BLU", "image": null, "children": []}, {"id": "RIS", "name": "RIS", "image": null, "children": []}]}, {"id": "Autismus", "name": "Autismus", "image": null, "children": [{"id": "ADL", "name": "ADL", "image": null, "children": []}, {"id": "OME", "name": "OME", "image": null, "children": []}, {"id": "HIR", "name": "HIR", "image": null, "children": []}, {"id": "BAR (extern)", "name": "BAR (extern)", "image": null, "children": []}, {"id": "AIG (extern)", "name": "AIG (extern)", "image": null, "children": []}]}]}, {"id": "Lernen und lernunterstützende Strukturen", "name": "Lernen und lernunterstützende Strukturen", "image": "https://images.lucid.app/images/698b9375-5764-4dba-914b-ad5d0ce3fab8/content", "children": [{"id": "Nachhilfe Schüler:innen für Schüler:innen", "name": "Nachhilfe Schüler:innen für Schüler:innen", "image": null, "children": [{"id": "ATZ", "name": "ATZ", "image": null, "children": []}]}, {"id": "Känguru der Mathematik", "name": "Känguru der Mathematik", "image": null, "children": [{"id": "REC", "name": "REC", "image": null, "children": []}]}, {"id": "LRS/RST", "name": "LRS/RST", "image": null, "children": [{"id": "DES", "name": "DES", "image": null, "children": []}]}, {"id": "Lernwerkstatt Deutsch", "name": "Lernwerkstatt Deutsch", "image": null, "children": []}, {"id": "Lernwerkstatt Mathe", "name": "Lernwerkstatt Mathe", "image": null, "children": [{"id": "ASP", "name": "ASP", "image": null, "children": []}]}, {"id": "DaZ Koordination", "name": "DaZ Koordination", "image": null, "children": [{"id": "JEG", "name": "JEG", "image": null, "children": []}]}, {"id": "DaF/DaZ", "name": "DaF/DaZ", "image": null, "children": [{"id": "JEG", "name": "JEG", "image": null, "children": []}]}, {"id": "Lesekoordination", "name": "Lesekoordination", "image": null, "children": [{"id": "77k66U4pGyET", "name": "HEL", "image": null, "children": []}]}, {"id": "VWA", "name": "VWA", "image": null, "children": [{"id": "GRV", "name": "GRV", "image": null, "children": []}]}, {"id": "IKM+", "name": "IKM+", "image": null, "children": [{"id": "WEN", "name": "WEN", "image": null, "children": []}]}, {"id": "Fremdsprachenassistenz", "name": "Fremdsprachenassistenz", "image": null, "children": [{"id": "HUE", "name": "HUE", "image": null, "children": []}, {"id": "FEL", "name": "FEL", "image": null, "children": []}]}, {"id": "E4You", "name": "E4You", "image": null, "children": []}, {"id": "Bibliothek", "name": "Bibliothek", "image": "https://images.lucid.app/images/003b5621-8598-4d69-8b6c-822a0b458c82/content", "children": [{"id": "GRA (Leitung)", "name": "GRA (Leitung)", "image": null, "children": []}, {"id": "KOL", "name": "KOL", "image": null, "children": []}]}, {"id": "MIKA-D Testung", "name": "MIKA-D Testung", "image": null, "children": [{"id": "AND", "name": "AND", "image": null, "children": []}]}, {"id": "Lerndesign", "name": "Lerndesign", "image": null, "children": [{"id": "STE", "name": "STE", "image": null, "children": []}]}, {"id": "0Sk6zEXxPSrd", "name": "ILB - Individuelle Lernbetreuung", "image": null, "children": [{"id": "HTk6aNd8vo7s", "name": "ARA", "image": null, "children": []}]}, {"id": "Z5k68LboGAq~", "name": "VHS Nachhilfe", "image": null, "children": [{"id": "-5k6xTyy0XlX", "name": "ARA", "image": null, "children": []}]}]}, {"id": "Info Anmeldung u. Beratung WPF-OST", "name": "Info Anmeldung u. Beratung WPF-OST", "image": "https://images.lucid.app/images/04c95c68-fe1e-4c64-a11d-647c8ff57d2e/content", "children": [{"id": "SCS", "name": "SCS", "image": null, "children": []}]}, {"id": "KV", "name": "Klassen", "image": "https://images.lucid.app/images/4e15ae5d-3b48-4ef8-88b8-8b72bf94d85c/content", "children": [{"id": "1A", "name": "1A", "image": "https://kandlgasse.at/files/grg7/img/Schulgemeinschaft/Klassenfotos/1A.jpg", "children": [{"id": "KAT", "name": "KAT", "image": null, "children": []}]}, {"id": "1B", "name": "1B", "image": null, "children": [{"id": "LEH", "name": "LEH", "image": null, "children": []}, {"id": "WAL(BIG)", "name": "WAL(BIG)", "image": null, "children": []}]}, {"id": "1C", "name": "1C", "image": null, "children": [{"id": "SCS", "name": "SCS", "image": null, "children": []}]}, {"id": "2A", "name": "2A", "image": null, "children": [{"id": "KEL", "name": "KEL", "image": null, "children": []}]}, {"id": "2B", "name": "2B", "image": null, "children": [{"id": "URB", "name": "URB", "image": null, "children": []}]}, {"id": "2C", "name": "2C", "image": null, "children": [{"id": "ZIS", "name": "ZIS", "image": null, "children": []}, {"id": "GOT (BiG)", "name": "GOT (BiG)", "image": null, "children": []}]}, {"id": "2", "name": "2D", "image": null, "children": [{"id": "HAC", "name": "HAC", "image": null, "children": []}]}, {"id": "3A", "name": "3A", "image": "https://kandlgasse.at/files/grg7/img/Schulgemeinschaft/Klassenfotos/3A.jpg", "children": [{"id": "KLE", "name": "KLE", "image": null, "children": []}]}, {"id": "3B", "name": "3B", "image": "https://kandlgasse.at/files/grg7/img/Schulgemeinschaft/Klassenfotos/3B.jpg", "children": [{"id": "HOM", "name": "HOM", "image": null, "children": []}]}, {"id": "3C", "name": "3C", "image": null, "children": [{"id": "DES", "name": "DES", "image": null, "children": []}]}, {"id": "3", "name": "3D", "image": null, "children": [{"id": "GRA", "name": "GRA", "image": null, "children": []}, {"id": "BLU(BiG)", "name": "BLU(BiG)", "image": null, "children": []}]}, {"id": "4A", "name": "4A", "image": null, "children": [{"id": "STE", "name": "STE", "image": null, "children": []}]}, {"id": "4B", "name": "4B", "image": null, "children": [{"id": "LOZ", "name": "LOZ", "image": null, "children": []}]}, {"id": "4C", "name": "4C", "image": null, "children": [{"id": "BOS", "name": "BOS", "image": null, "children": []}]}, {"id": "4", "name": "4D", "image": null, "children": [{"id": "DEL", "name": "DEL", "image": null, "children": []}, {"id": "RIS (BIG)", "name": "RIS (BIG)", "image": null, "children": []}]}, {"id": "5A", "name": "5A", "image": null, "children": [{"id": "PLA", "name": "PLA", "image": null, "children": []}]}, {"id": "5B", "name": "5B", "image": null, "children": [{"id": "PRE", "name": "PRE", "image": null, "children": []}]}, {"id": "6A", "name": "6A", "image": null, "children": [{"id": "LEG", "name": "LEG", "image": null, "children": []}]}, {"id": "6B", "name": "6B", "image": null, "children": [{"id": "KER", "name": "KER", "image": null, "children": []}]}, {"id": "7A", "name": "7A", "image": null, "children": [{"id": "KOL", "name": "KOL", "image": null, "children": []}]}, {"id": "7B", "name": "7B", "image": null, "children": [{"id": "GRV", "name": "GRV", "image": null, "children": []}]}, {"id": "8A", "name": "8A", "image": null, "children": [{"id": "MON", "name": "MON", "image": null, "children": []}]}, {"id": "8B", "name": "8B", "image": null, "children": [{"id": "HUE", "name": "HUE", "image": null, "children": []}]}, {"id": "8C", "name": "8C", "image": null, "children": [{"id": "HAB", "name": "HAB", "image": null, "children": []}]}]}, {"id": "Community", "name": "Community", "image": "https://kandlgasse.at/files/grg7/img/Schulgemeinschaft/Lehrerinnenfotos/Lehrer_2024_25.jpg", "children": [{"id": "Schulballorganisation", "name": "Schulballorganisation", "image": "https://images.lucid.app/images/7249ed2d-7c2f-47ff-b111-efee68aa9f81/content", "children": [{"id": "GRO", "name": "GRO", "image": null, "children": []}, {"id": "KAT", "name": "KAT", "image": null, "children": []}]}, {"id": "Kaffee", "name": "Kaffee", "image": "https://images.lucid.app/images/6ca6cb21-e0b2-4e92-9265-4f30ed8ec345/content", "children": [{"id": "URB", "name": "URB", "image": null, "children": []}]}]}, {"id": "Support-System", "name": "Support-System", "image": "https://images.lucid.app/images/b1de9dcf-11a8-4a86-aeef-755a2a91b266/content", "children": [{"id": "Peer-Mediation", "name": "Peer-Mediation", "image": null, "children": [{"id": "GRA (ausgebildete Peers)", "name": "GRA (ausgebildete Peers)", "image": null, "children": []}, {"id": "LAN", "name": "LAN", "image": null, "children": []}, {"id": "GEB", "name": "GEB", "image": null, "children": []}]}, {"id": "AHS Schüler:innenberatung", "name": "AHS Schüler:innenberatung", "image": null, "children": [{"id": "LEG KER", "name": "LEG KER", "image": null, "children": []}]}, {"id": "Beratungslehrerin", "name": "Beratungslehrerin", "image": null, "children": [{"id": "BAR", "name": "BAR", "image": null, "children": []}]}, {"id": "WMS-Volksschule-Lehrperson", "name": "WMS-Volksschule-Lehrperson", "image": null, "children": [{"id": "ANT", "name": "ANT", "image": null, "children": []}]}, {"id": "Jugendcoach", "name": "Jugendcoach", "image": null, "children": []}, {"id": "Kinderschutz-Team", "name": "Kinderschutz-Team", "image": null, "children": [{"id": "AIG", "name": "AIG", "image": null, "children": []}]}, {"id": "No Blame Approach", "name": "No Blame Approach", "image": null, "children": [{"id": "GEL", "name": "GEL", "image": null, "children": []}]}, {"id": "Schulpsychologin", "name": "Schulpsychologin", "image": null, "children": [{"id": "Clara Steinkogler-Kieslich", "name": "Clara Steinkogler-Kieslich", "image": null, "children": []}]}, {"id": "Nahtstelle 14+", "name": "Nahtstelle 14+", "image": null, "children": [{"id": "LEG", "name": "LEG", "image": null, "children": []}]}, {"id": "Übergang Volksschule Nahtstelle 10+", "name": "Übergang Volksschule Nahtstelle 10+", "image": null, "children": [{"id": "KKO", "name": "KKO", "image": null, "children": []}]}]}, {"id": "Nachmittagsbetreuung", "name": "Nachmittagsbetreuung", "image": "https://images.lucid.app/images/e8d96c4f-f987-49ad-a73a-adb195fc17d3/content", "children": [{"id": "Nachmittagsbetreuungsleitung", "name": "Nachmittagsbetreuungsleitung", "image": "https://images.lucid.app/images/53e9853d-b762-403b-8979-cc91332f6a63/content", "children": [{"id": "ATZ", "name": "ATZ", "image": null, "children": []}, {"id": "HEI", "name": "HEI", "image": null, "children": []}]}, {"id": "Mittagsaufsichtskoordination", "name": "Mittagsaufsichtskoordination", "image": "https://images.lucid.app/images/1821d0e0-fbfb-4fa3-aeb5-13fe95ee71e2/content", "children": [{"id": "WEN", "name": "WEN", "image": null, "children": []}, {"id": "GRM", "name": "GRM", "image": null, "children": []}]}]}, {"id": "Fachgruppen und sonstige Kustodiate", "name": "Fachgruppen und sonstige Kustodiate", "image": "https://images.lucid.app/images/f0c055ce-9787-41ac-a4ba-5c8a8c06a41a/content", "children": [{"id": "Deutsch", "name": "Deutsch", "image": "https://images.lucid.app/images/9027fb3d-b59a-4468-8241-4d0856c0086e/content", "children": [{"id": "AND/BOS", "name": "AND/BOS", "image": null, "children": []}]}, {"id": "Mathematik", "name": "Mathematik", "image": "https://images.lucid.app/images/37638730-38fe-49dd-aaa7-de475223c7e1/content", "children": [{"id": "KAR", "name": "KAR", "image": null, "children": []}]}, {"id": "Englisch", "name": "Englisch", "image": "https://images.lucid.app/images/a07baf04-a929-45f9-b4f5-8a7898b77189/content", "children": [{"id": "HUE", "name": "HUE", "image": null, "children": []}]}, {"id": "ROM", "name": "ROM", "image": null, "children": [{"id": "MAR (ab Herbst 25 ECK)", "name": "MAR (ab Herbst 25 ECK)", "image": null, "children": []}]}, {"id": "GWK", "name": "GWK", "image": null, "children": [{"id": "HAB", "name": "HAB", "image": null, "children": []}]}, {"id": "GPB", "name": "GPB", "image": null, "children": [{"id": "HAB", "name": "HAB", "image": null, "children": []}]}, {"id": "BIUK", "name": "BIUK", "image": "https://images.lucid.app/images/52721f2b-a86b-4323-b63b-bb72904d1ddd/content", "children": [{"id": "GEL", "name": "GEL", "image": null, "children": []}]}, {"id": "PH", "name": "PH", "image": null, "children": [{"id": "RIC", "name": "RIC", "image": null, "children": []}]}, {"id": "CH", "name": "CH", "image": "https://images.lucid.app/images/842317f7-638c-4b5c-9ccc-248701e4a011/content", "children": [{"id": "GRO", "name": "GRO", "image": null, "children": []}]}, {"id": "L", "name": "L", "image": null, "children": [{"id": "KAT/GRM", "name": "KAT/GRM", "image": null, "children": []}]}, {"id": "MU", "name": "MU", "image": null, "children": [{"id": "NEN", "name": "NEN", "image": null, "children": []}]}, {"id": "Kunst und Gestaltung (KuG)", "name": "Kunst und Gestaltung (KuG)", "image": null, "children": [{"id": "Mag. Frank Gassner (GAS)", "name": "Mag. Frank Gassner (GAS)", "image": null, "children": []}]}, {"id": "TuD", "name": "TuD", "image": null, "children": [{"id": "FOR/KIR", "name": "FOR/KIR", "image": null, "children": []}]}, {"id": "REL", "name": "REL", "image": null, "children": []}, {"id": "GZ und DG", "name": "GZ und DG", "image": null, "children": [{"id": "KAR", "name": "KAR", "image": null, "children": []}]}, {"id": "BSP", "name": "BSP", "image": "https://images.lucid.app/images/51c3d683-a1f3-4a29-b42c-cd0baee52347/content", "children": [{"id": "SBL", "name": "SBL", "image": null, "children": []}]}, {"id": "PP", "name": "PP", "image": null, "children": []}, {"id": "INF", "name": "INF", "image": null, "children": [{"id": "LEI", "name": "LEI", "image": null, "children": []}]}, {"id": "DIGI", "name": "DIGI", "image": null, "children": [{"id": "LEI (Teil von INF aktuell)", "name": "LEI (Teil von INF aktuell)", "image": null, "children": []}]}, {"id": "DaZ", "name": "DaZ", "image": "https://images.lucid.app/images/7479ea7e-5cff-4c90-bda1-03992fe74fd5/content", "children": []}, {"id": "ETH", "name": "ETH", "image": "https://images.lucid.app/images/908c1de6-eae4-41f9-a805-1dcc0bba90bd/content", "children": [{"id": "GEL", "name": "GEL", "image": null, "children": []}]}, {"id": "AV", "name": "AV", "image": null, "children": [{"id": "SBL", "name": "SBL", "image": null, "children": []}]}, {"id": "EDV", "name": "EDV", "image": null, "children": [{"id": "WEI (MDM)", "name": "WEI (MDM)", "image": null, "children": []}, {"id": "LEI (IT-Manager)", "name": "LEI (IT-Manager)", "image": null, "children": []}]}, {"id": "WPF-Koordination", "name": "WPF-Koordination", "image": null, "children": [{"id": "SCS", "name": "SCS", "image": null, "children": []}]}, {"id": "Lerncoaching-Koordination", "name": "Lerncoaching-Koordination", "image": null, "children": [{"id": "PIR", "name": "PIR", "image": null, "children": []}]}]}, {"id": "Schulveranstaltungen", "name": "Schulveranstaltungen", "image": "https://images.lucid.app/images/f939f70b-0d6f-45a4-b3af-c88bfb109a11/content", "children": [{"id": "Tag der offenen Tür Tag der Wiener Schulen", "name": "Tag der offenen Tür Tag der Wiener Schulen", "image": null, "children": [{"id": "RIC", "name": "RIC", "image": null, "children": []}]}, {"id": "Leitung Schulveranstaltungen", "name": "Leitung Schulveranstaltungen", "image": null, "children": [{"id": "AIG", "name": "AIG", "image": null, "children": []}, {"id": "LEN", "name": "LEN", "image": null, "children": []}]}, {"id": "Schulfest", "name": "Schulfest", "image": null, "children": [{"id": "o3k6-rnOR09S", "name": "MOT", "image": null, "children": []}]}, {"id": "Sportfest", "name": "Sportfest", "image": null, "children": [{"id": "x3k6t7uIr09e", "name": "MOT", "image": null, "children": []}]}]}, {"id": "QMS-Team", "name": "QMS-Team", "image": "https://images.lucid.app/images/ede3fa19-defa-4260-8f51-8651f6ea1d04/content", "children": [{"id": "PIR", "name": "PIR", "image": null, "children": []}, {"id": "MOT", "name": "MOT", "image": null, "children": []}, {"id": "HEI", "name": "HEI", "image": null, "children": []}, {"id": "ARA", "name": "ARA", "image": null, "children": []}]}, {"id": "Öffentlichkeitsarbeit und PR", "name": "Öffentlichkeitsarbeit und PR", "image": "https://images.lucid.app/images/0c7932d2-9620-414f-a7bb-7ab804548760/content", "children": [{"id": "Jahresbericht", "name": "Jahresbericht", "image": null, "children": []}, {"id": "Schüler:innenzeitung", "name": "Schüler:innenzeitung", "image": null, "children": [{"id": "LOZ", "name": "LOZ", "image": null, "children": []}]}, {"id": "Homepage", "name": "Homepage", "image": null, "children": [{"id": "LEI", "name": "LEI", "image": null, "children": []}]}, {"id": "Lehrer:innenfotos", "name": "Lehrer:innenfotos", "image": null, "children": [{"id": "DEI (Vertretung: PRE)", "name": "DEI (Vertretung: PRE)", "image": null, "children": []}]}, {"id": "Schaukästen/Schulhausgestaltung", "name": "Schaukästen/Schulhausgestaltung", "image": null, "children": []}, {"id": "Social-Media-Team", "name": "Social-Media-Team", "image": null, "children": [{"id": "FLO", "name": "FLO", "image": null, "children": []}, {"id": "LOZ", "name": "LOZ", "image": null, "children": []}, {"id": "ZAN", "name": "ZAN", "image": null, "children": []}]}]}, {"id": "Interessensvertretung", "name": "Interessensvertretung", "image": "https://images.lucid.app/images/d7a685d9-5960-4e78-b03f-e9097cf08102/content", "children": [{"id": "SGA", "name": "SGA", "image": "https://images.lucid.app/images/432498d1-d26f-48d5-9bae-e2ab3e333fa6/content", "children": [{"id": "LOZ", "name": "LOZ", "image": null, "children": []}, {"id": "PIR", "name": "PIR", "image": null, "children": []}, {"id": "SCS", "name": "SCS", "image": null, "children": []}]}, {"id": "PV", "name": "PV", "image": "https://images.lucid.app/images/4c0e7b6a-f3db-431c-9110-354b6fc0a3fe/content", "children": [{"id": "LEG", "name": "LEG", "image": null, "children": []}, {"id": "KAT", "name": "KAT", "image": null, "children": []}, {"id": "GRO", "name": "GRO", "image": null, "children": []}, {"id": "DES", "name": "DES", "image": null, "children": []}]}]}];
+        
+        // UI Colors
+        const colors = ['#0f766e', '#0369a1', '#4338ca', '#6d28d9', '#b45309', '#be123c', '#475569', '#15803d', '#c2410c', '#500724'];
+        
+        let currentYearOffset = 0;
+        
+        // Element caching
+        const gridContainer = document.getElementById('gridContainer');
+        const legendGrid = document.getElementById('legendGrid');
+        const deptSelect = document.getElementById('deptSelect');
+        const singleCardContainer = document.getElementById('singleCardContainer');
+        const searchInput = document.getElementById('searchInput');
+        const promoteBtn = document.getElementById('promoteBtn');
+        const yearDisplay = document.getElementById('yearDisplay');
+        const globalToolbar = document.getElementById('globalToolbar');
+
+        // Initial setup for tabs
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.remove('hidden');
+            const clickedBtn = document.querySelector(`[data-tab="${tabId}"]`);
+            if (clickedBtn) clickedBtn.classList.add('active');
+            
+            // Show toolbar only on overview and partials tabs
+            if (tabId === 'tab-gesamt' || tabId === 'tab-teilbereiche') {
+                globalToolbar.classList.remove('hidden');
+            } else {
+                globalToolbar.classList.add('hidden');
+            }
+            
+            if (tabId === 'tab-teilbereiche') {
+                renderTeilbereich();
+            }
+        }
+
+        // Formatting Helper for external document links
+        function formatLinks(text) {
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            return text.replace(urlRegex, function(url) {
+                return `<a href="${url}" target="_blank" class="doc-link">🔗 Dokument öffnen</a>`;
+            });
+        }
+
+        function getInitials(name) {
+            const plain = name.replace(/<[^>]*>?/gm, '').split(/[\s-]+/);
+            let initials = "";
+            for (let i = 0; i < Math.min(2, plain.length); i++) {
+                if (plain[i].length > 0) initials += plain[i][0].toUpperCase();
+            }
+            return initials || "?";
+        }
+
+        function isClassName(str) {
+            return /^[1-8][A-Z]?$/.test(str.trim());
+        }
+
+        function incrementClass(str, offset) {
+            const match = str.trim().match(/^([1-8])([A-Z]?)$/);
+            if (match) {
+                let num = parseInt(match[1]) + offset;
+                if (num > 8) return "Absolventen";
+                return num + match[2];
+            }
+            return str;
+        }
+
+        function highlightText(text, query) {
+            if (!query) return text;
+            const regex = new RegExp(`(${query})`, "gi");
+            const parts = text.split(/(<[^>]*>)/);
+            for (let i = 0; i < parts.length; i++) {
+                if (!parts[i].startsWith('<')) {
+                    parts[i] = parts[i].replace(regex, "<span class='search-highlight'>$1</span>");
+                }
+            }
+            return parts.join('');
+        }
+
+        // Generate card layout
+        function generateCardHtml(topNode, index, filterQuery = "") {
+            const color = colors[index % colors.length];
+            let bodyHtml = '';
+            let cardHasMatch = topNode.name.toLowerCase().includes(filterQuery);
+            
+            const topNameMatch = highlightText(topNode.name, filterQuery);
+            
+            if (!topNode.children || topNode.children.length === 0) {
+                bodyHtml += `<div class="team-group"><div class="team-title">${topNameMatch}</div></div>`;
+            } else {
+                topNode.children.forEach(subNode => {
+                    let subNodeName = subNode.name;
+                    if (isClassName(subNodeName) && currentYearOffset > 0) {
+                        subNodeName = incrementClass(subNodeName, currentYearOffset);
+                    }
+                    
+                    if (subNodeName === "Absolventen" && currentYearOffset > 0 && isClassName(subNode.name)) {
+                        return; // Exclude graduated classes
+                    }
+
+                    let subHasMatch = subNodeName.toLowerCase().includes(filterQuery);
+                    const subNameMatch = highlightText(subNodeName, filterQuery);
+                    
+                    let membersHtml = '';
+                    if (subNode.children && subNode.children.length > 0) {
+                        subNode.children.forEach(person => {
+                            const personNamePlain = person.name.replace(/(https?:\/\/[^\s]+)/g, '').trim();
+                            const formattedName = formatLinks(person.name);
+                            
+                            if (personNamePlain.toLowerCase().includes(filterQuery)) {
+                                subHasMatch = true;
+                            }
+                            
+                            const personMatch = highlightText(formattedName, filterQuery);
+                            membersHtml += `
+                                <li class="member-item">
+                                    <div class="avatar-small">${getInitials(personNamePlain)}</div>
+                                    <span>${personMatch}</span>
+                                </li>
+                            `;
+                        });
+                    }
+                    
+                    if (subHasMatch || filterQuery === "") {
+                        cardHasMatch = true;
+                        bodyHtml += `
+                            <div class="team-group">
+                                <div class="team-title">${subNameMatch}</div>
+                                ${membersHtml ? `<ul class="member-list">${membersHtml}</ul>` : ''}
+                            </div>
+                        `;
+                    }
+                });
+            }
+            
+            if (!cardHasMatch && filterQuery !== "") return null;
+            
+            return `
+                <div class="department-card">
+                    <div class="dept-header" style="background-color: ${color}">
+                        <span>${topNameMatch}</span>
+                    </div>
+                    <div class="dept-body">
+                        ${bodyHtml || '<p style="color:var(--text-muted);font-size:0.9rem;margin:0;">Keine Einträge vorhanden.</p>'}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Build the full layout grid
+        function renderAllGrids() {
+            gridContainer.innerHTML = '';
+            const query = searchInput.value.toLowerCase().trim();
+            
+            rawData.forEach((topNode, index) => {
+                const cardHtml = generateCardHtml(topNode, index, query);
+                if (cardHtml) {
+                    const tempWrapper = document.createElement('div');
+                    tempWrapper.innerHTML = cardHtml;
+                    gridContainer.appendChild(tempWrapper.firstElementChild);
+                }
+            });
+            
+            if (gridContainer.innerHTML === '') {
+                gridContainer.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:40px; color:var(--text-muted);">Keine Ergebnisse für diese Suche gefunden.</div>';
+            }
+        }
+
+        // Dynamic individual department display
+        function renderTeilbereich() {
+            singleCardContainer.innerHTML = '';
+            const selectedIdx = parseInt(deptSelect.value);
+            const query = searchInput.value.toLowerCase().trim();
+            
+            if (!isNaN(selectedIdx) && rawData[selectedIdx]) {
+                const cardHtml = generateCardHtml(rawData[selectedIdx], selectedIdx, query);
+                if (cardHtml) {
+                    singleCardContainer.innerHTML = cardHtml;
+                } else {
+                    singleCardContainer.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted);">Dieser Bereich entspricht nicht den aktiven Suchfiltern.</div>';
+                }
+            }
+        }
+
+        // Setup Farblegende and Dropdowns dynamically
+        function initMetadata() {
+            legendGrid.innerHTML = '';
+            deptSelect.innerHTML = '';
+            
+            rawData.forEach((topNode, index) => {
+                const color = colors[index % colors.length];
+                
+                // Add to legend
+                const legendItem = document.createElement('div');
+                legendItem.className = 'legend-item';
+                legendItem.innerHTML = `
+                    <div class="legend-color-box" style="background-color: ${color}"></div>
+                    <div class="legend-name">${topNode.name}</div>
+                `;
+                legendGrid.appendChild(legendItem);
+                
+                // Add to select dropdown
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = topNode.name;
+                deptSelect.appendChild(option);
+            });
+        }
+
+        // Event listeners
+        searchInput.addEventListener('input', () => {
+            renderAllGrids();
+            renderTeilbereich();
+        });
+
+        promoteBtn.addEventListener('click', () => {
+            currentYearOffset++;
+            const startYear = 2025 + currentYearOffset;
+            const endYear = 2026 + currentYearOffset;
+            yearDisplay.innerText = `Schuljahr ${startYear}/${endYear.toString().substring(2)}`;
+            renderAllGrids();
+            renderTeilbereich();
+        });
+
+        // Bootstrap execution
+        initMetadata();
+        renderAllGrids();
+    </script>
+</body>
+</html>

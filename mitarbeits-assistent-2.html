@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mitarbeits-Assistent · § 4 LBVO</title>
+<style>
+  :root{
+    --paper:#f6f5f2; --line:#e2e0d8; --line-strong:#c9c6ba; --ink:#20241f; --ink-soft:#7a7c73;
+    --plus:#2E6B45; --plus-bg:#E0EFE5; --mid:#8A7B3F; --mid-bg:#F1EBD3; --minus:#A5432A; --minus-bg:#F6E4DD;
+    --accent:#2f6690;
+    --mono:"SF Mono",Consolas,"Liberation Mono",monospace;
+    --serif:Georgia,'Iowan Old Style','Times New Roman',serif;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);font-family:var(--sans);padding-bottom:70px}
+
+  .k7-bar{background:var(--paper);border-bottom:1px solid var(--line-strong);padding:10px clamp(14px,4vw,30px);}
+  .k7-bar-link{display:inline-flex;align-items:center;gap:8px;color:var(--ink);text-decoration:none;font-size:.82rem;font-weight:600;}
+  .k7-bar-link:hover{text-decoration:underline;}
+  .k7-bar-mark{font-family:var(--serif);font-weight:700;border:1px solid var(--ink);width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-size:.65rem;flex-shrink:0;}
+  .k7-bar-sep{opacity:.5;}
+
+  header{background:var(--paper);color:var(--ink);padding:18px clamp(14px,4vw,30px) 0;border-bottom:1px solid var(--line)}
+  header .titelzeile{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;max-width:820px;margin:0 auto}
+  header h1{font-family:var(--serif);font-size:clamp(19px,3.5vw,24px);font-weight:700}
+  header .lbvo{font-family:var(--mono);font-size:11.5px;color:var(--ink-soft)}
+  .hauptnav{display:flex;gap:22px;max-width:820px;margin:16px auto 0}
+  .hauptnav button{appearance:none;border:none;background:none;color:var(--ink-soft);
+    font:600 13.5px/1 var(--sans);padding:10px 0;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+  .hauptnav button[aria-selected="true"]{background:none;color:var(--ink);border-bottom-color:var(--ink)}
+  .hauptnav button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  main{max-width:820px;margin:0 auto;padding:20px clamp(12px,4vw,30px)}
+  .ansicht{display:none}
+  .ansicht.aktiv{display:block}
+  h2{font-family:var(--serif);font-size:19px;font-weight:600;margin-bottom:4px}
+  .sub{font-size:13px;color:var(--ink-soft);margin-bottom:16px;line-height:1.5}
+
+  .klassenzeile{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+  select,input[type=text],input[type=date],textarea{
+    border:1px solid #CBC4B0;border-radius:7px;background:#fff;padding:9px 11px;
+    font:400 14px/1.4 var(--sans);color:var(--ink)}
+  select:focus-visible,input:focus-visible,textarea:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+  .btn{appearance:none;border:none;border-radius:8px;font:600 13.5px/1 var(--sans);padding:11px 16px;cursor:pointer;background:var(--accent);color:#fff}
+  .btn.leise{background:#ECE7D8;color:var(--ink)}
+  .btn.gefahr{background:var(--minus-bg);color:var(--minus)}
+
+  .chips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:6px}
+  .chip{appearance:none;border:1.5px solid #C6CFC9;background:#fff;color:var(--ink-soft);
+    font:600 12.5px/1 var(--sans);padding:9px 13px;border-radius:99px;cursor:pointer}
+  .chip[aria-pressed="true"]{border-color:var(--accent);background:var(--accent);color:#fff}
+  .chipinfo{font-size:11.5px;color:var(--ink-soft);margin-bottom:14px}
+
+  /* Modus-Umschalter */
+  .modus{display:inline-flex;border:1.5px solid var(--accent);border-radius:9px;overflow:hidden;margin-left:auto}
+  .modus button{appearance:none;border:none;background:#fff;color:var(--accent);font:600 12.5px/1 var(--sans);padding:9px 14px;cursor:pointer}
+  .modus button[aria-pressed="true"]{background:var(--accent);color:#fff}
+
+  /* ---- SWIPE ---- */
+  .deckbuehne{position:relative;height:min(58vh,430px);margin:6px auto 14px;max-width:420px;touch-action:none}
+  .karte-s{position:absolute;inset:0;background:#fff;border:1px solid var(--line);border-radius:18px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+    box-shadow:0 14px 34px -18px rgba(40,55,45,.45);user-select:none;cursor:grab;will-change:transform}
+  .karte-s:active{cursor:grabbing}
+  .karte-s .kuerzel{font-family:var(--serif);font-weight:700;font-size:clamp(52px,14vw,84px);letter-spacing:.03em}
+  .karte-s .voll{font-size:13px;color:var(--ink-soft)}
+  .karte-s .zaehler{position:absolute;top:14px;right:16px;font-family:var(--mono);font-size:12px;color:var(--ink-soft)}
+  .karte-s .richtungshilfe{position:absolute;bottom:14px;font-size:11.5px;color:var(--ink-soft);text-align:center;line-height:1.5}
+  .karte-s .stempel-o{position:absolute;font-family:var(--mono);font-weight:700;font-size:26px;letter-spacing:.1em;
+    border:3px solid currentColor;border-radius:10px;padding:6px 16px;opacity:0;transform:rotate(-12deg)}
+  .stempel-o.rechts{color:var(--plus);right:22px;top:26px}
+  .stempel-o.links{color:var(--minus);left:22px;top:26px;transform:rotate(12deg)}
+  .stempel-o.oben{color:var(--mid);top:26px;left:50%;transform:translateX(-50%)}
+  .deck-hinter{position:absolute;inset:0;border-radius:18px;background:#fff;border:1px solid var(--line)}
+  .deck-hinter.h1{transform:scale(.96) translateY(10px);opacity:.7}
+  .deck-hinter.h2{transform:scale(.92) translateY(20px);opacity:.4}
+  .swipe-aktionen{display:flex;justify-content:center;gap:12px;margin-bottom:8px}
+  .swipe-aktionen .sym{width:58px;height:52px;font-size:22px}
+  .swipe-aktionen .skip{background:#EFECE2;color:var(--ink-soft);font-size:13px;font-weight:600;width:auto;padding:0 16px;font-family:var(--sans)}
+  .deck-fertig{text-align:center;padding:60px 16px;color:var(--ink-soft);font-size:15px;line-height:1.7}
+  .deck-fertig b{color:var(--ink)}
+
+  /* Erfassungsliste */
+  .schueler{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);
+    border-radius:10px;margin-bottom:7px;background:#fff}
+  .schueler .name{flex:1;font-size:15px;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .schueler .name small{color:var(--ink-soft);font-weight:400}
+  .schueler .heute{font-family:var(--mono);font-size:11.5px;color:var(--ink-soft);white-space:nowrap}
+  .sym{appearance:none;border:1.5px solid transparent;border-radius:9px;width:46px;height:42px;
+    font:700 19px/1 var(--serif);cursor:pointer;flex:none}
+  .sym.p{background:var(--plus-bg);color:var(--plus)}
+  .sym.m{background:var(--mid-bg);color:var(--mid)}
+  .sym.n{background:var(--minus-bg);color:var(--minus)}
+  .sym:active{transform:scale(.93)}
+  .notizknopf{appearance:none;border:none;background:none;color:var(--ink-soft);font-size:17px;cursor:pointer;padding:6px}
+
+  #toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--ink);color:var(--paper);
+    border-radius:10px;padding:12px 16px;font-size:13.5px;display:none;gap:14px;align-items:center;
+    box-shadow:0 10px 30px -10px rgba(0,0,0,.5);z-index:50;max-width:92vw}
+  #toast button{appearance:none;border:none;background:none;color:#F3C969;font:700 13.5px var(--sans);cursor:pointer}
+
+  .karte{border:1px solid var(--line);border-radius:12px;background:#fff;padding:14px 16px;margin-bottom:10px}
+  .karte .kopfzeile{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+  .karte .kname{font-weight:700;font-size:15px}
+  .karte .kname small{color:var(--ink-soft);font-weight:400}
+  .tendenz{font-family:var(--mono);font-size:12px;padding:5px 10px;border-radius:99px}
+  .tendenz.p{background:var(--plus-bg);color:var(--plus)}
+  .tendenz.m{background:var(--mid-bg);color:var(--mid)}
+  .tendenz.n{background:var(--minus-bg);color:var(--minus)}
+  .tendenz.leer{background:#EFECE2;color:var(--ink-soft)}
+  .balken{display:flex;height:10px;border-radius:99px;overflow:hidden;margin:10px 0 6px;background:#EFECE2}
+  .balken div{height:100%}
+  .balken .bp{background:var(--plus)} .balken .bm{background:var(--mid)} .balken .bn{background:var(--minus)}
+  .kstat{font-size:12px;color:var(--ink-soft)}
+  details{margin-top:8px}
+  summary{font-size:12.5px;font-weight:600;color:var(--accent);cursor:pointer}
+  .eintrag{display:flex;gap:9px;align-items:baseline;font-size:13px;padding:6px 0;border-bottom:1px dashed var(--line)}
+  .eintrag .ed{font-family:var(--mono);font-size:11.5px;color:var(--ink-soft);white-space:nowrap}
+  .eintrag .es{font-weight:700}
+  .eintrag .es.p{color:var(--plus)} .eintrag .es.m{color:var(--mid)} .eintrag .es.n{color:var(--minus)}
+  .eintrag .ek{color:var(--ink-soft);font-size:12px}
+  .eintrag button{margin-left:auto;appearance:none;border:none;background:none;color:var(--minus);cursor:pointer;font-size:13px}
+
+  textarea{width:100%;min-height:140px}
+  .hinweis{font-size:12.5px;color:var(--ink-soft);background:#EDF2EE;border-left:3px solid var(--accent);
+    border-radius:0 8px 8px 0;padding:10px 12px;margin:14px 0;line-height:1.55}
+  #exporttext{font-family:var(--mono);font-size:12.5px;min-height:260px;white-space:pre-wrap}
+  .leerhinweis{text-align:center;color:var(--ink-soft);font-size:14px;padding:40px 10px;line-height:1.6}
+
+  #dialoghintergrund{position:fixed;inset:0;background:rgba(20,30,25,.45);display:none;z-index:40}
+  #dialog{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:#fff;border-radius:14px;
+    padding:20px;width:min(440px,92vw);z-index:41;display:none;box-shadow:0 20px 50px -15px rgba(0,0,0,.4)}
+  #dialog h3{font-size:15px;margin-bottom:10px}
+  #dialog .dsym{display:flex;gap:8px;margin-bottom:10px}
+  #dialog .dsym .sym{width:56px;height:46px}
+  #dialog .sym[aria-pressed="true"]{border-color:var(--ink)}
+  #dialog textarea{min-height:70px;margin-bottom:12px}
+  #dialog .daktion{display:flex;gap:8px;justify-content:flex-end}
+
+  @media (prefers-reduced-motion:reduce){ .sym:active{transform:none} .karte-s{transition:none!important} }
+</style>
+</head>
+<body>
+<div class="k7-bar">
+  <a class="k7-bar-link" href="Lehrkraefte_Dashboard_GRG7_Kandlgasse.html">
+    <span class="k7-bar-mark">K7</span> GRG7 Kandlgasse <span class="k7-bar-sep">·</span> Zur Übersicht
+  </a>
+</div>
+<header>
+  <div class="titelzeile">
+    <h1>Mitarbeits-Assistent</h1>
+    <span class="lbvo">Aufzeichnungen gem. § 4 LBVO · keine Einzelbenotung</span>
+  </div>
+  <nav class="hauptnav" role="tablist">
+    <button role="tab" aria-selected="true" data-v="erfassen">Erfassen</button>
+    <button role="tab" aria-selected="false" data-v="uebersicht">Übersicht</button>
+    <button role="tab" aria-selected="false" data-v="export">Export</button>
+    <button role="tab" aria-selected="false" data-v="setup">Klassen</button>
+  </nav>
+</header>
+
+<main>
+  <!-- ERFASSEN -->
+  <section class="ansicht aktiv" id="v_erfassen">
+    <div class="klassenzeile">
+      <label for="klasse_e" style="font-size:13px;font-weight:600">Klasse:</label>
+      <select id="klasse_e"></select>
+      <input type="date" id="datum_e" aria-label="Datum der Beobachtung">
+      <div class="modus" role="group" aria-label="Erfassungsmodus">
+        <button id="modus_swipe" aria-pressed="true">Swipe</button>
+        <button id="modus_liste" aria-pressed="false">Liste</button>
+      </div>
+    </div>
+    <div class="chips" id="chips_e" role="group" aria-label="Kategorie der Mitarbeit"></div>
+    <p class="chipinfo" id="chipinfo">Kategorie gilt für die nächsten Einträge.</p>
+
+    <!-- Swipe-Modus -->
+    <div id="swipebereich">
+      <div class="deckbuehne" id="deck"></div>
+      <div class="swipe-aktionen">
+        <button class="sym n" id="sw_minus" aria-label="negativ (Pfeil links)">−</button>
+        <button class="sym skip" id="sw_skip" aria-label="überspringen (Pfeil unten)">Überspringen</button>
+        <button class="sym m" id="sw_mid" aria-label="erwartungsgemäß (Pfeil oben)">○</button>
+        <button class="sym p" id="sw_plus" aria-label="positiv (Pfeil rechts)">+</button>
+      </div>
+      <div class="klassenzeile" style="justify-content:center">
+        <button class="btn leise" id="sw_neu">Runde neu starten</button>
+        <button class="btn leise" id="sw_mischen">Mischen</button>
+      </div>
+    </div>
+
+    <!-- Listen-Modus -->
+    <div id="listenbereich" style="display:none">
+      <div id="liste_e"></div>
+    </div>
+  </section>
+
+  <!-- ÜBERSICHT -->
+  <section class="ansicht" id="v_uebersicht">
+    <div class="klassenzeile">
+      <label for="klasse_u" style="font-size:13px;font-weight:600">Klasse:</label>
+      <select id="klasse_u"></select>
+    </div>
+    <p class="sub">Verteilung und Tendenz je Schüler:in – als Grundlage für die Gesamtbeurteilung, nicht als Einzelnote.</p>
+    <div id="liste_u"></div>
+  </section>
+
+  <!-- EXPORT -->
+  <section class="ansicht" id="v_export">
+    <h2>Export für Notenvergabe &amp; Stellungnahmen</h2>
+    <p class="sub">Formulierter Nachweis-Absatz je Schüler:in sowie Rohdaten als CSV.</p>
+    <div class="klassenzeile">
+      <select id="klasse_x"></select>
+      <select id="schueler_x"></select>
+      <button class="btn" id="x_absatz">Absatz erzeugen</button>
+      <button class="btn leise" id="x_csv">CSV (ganze Klasse)</button>
+      <button class="btn leise" id="x_kopieren">Kopieren</button>
+    </div>
+    <textarea id="exporttext" spellcheck="false" aria-label="Exporttext"></textarea>
+  </section>
+
+  <!-- SETUP -->
+  <section class="ansicht" id="v_setup">
+    <h2>Klassen verwalten</h2>
+    <p class="sub">Eine Zeile pro Schüler:in. Kürzel automatisch – oder selbst festlegen mit Strichpunkt: <code>Muster Anna;MU</code></p>
+    <div class="klassenzeile">
+      <input type="text" id="s_klassenname" placeholder="Klassenname, z. B. 7A Deutsch">
+    </div>
+    <textarea id="s_namen" placeholder="Muster Anna&#10;Beispiel Bernd;BB&#10;…"></textarea>
+    <div class="klassenzeile" style="margin-top:10px">
+      <button class="btn" id="s_anlegen">Klasse anlegen</button>
+      <button class="btn gefahr" id="s_loeschen">Ausgewählte Klasse löschen …</button>
+    </div>
+    <div class="hinweis">
+      <b>Rechtsrahmen:</b> § 4 Abs 1 LBVO nennt als Mitarbeit u. a. Leistungen in der Unterrichtsarbeit, bei der Sicherung des Unterrichtsertrags (einschließlich Hausübungen), bei der Erarbeitung neuer Lehrstoffe und im Rahmen der Selbsttätigkeit. Nach § 4 Abs 2 LBVO sind Aufzeichnungen so oft wie möglich zu führen; einzelne Mitarbeitsleistungen sind <b>nicht gesondert zu benoten</b> – daher Symbole statt Noten. Wortlaut vor formeller Verwendung im RIS prüfen. Tipp: Für den Dauereinsatz nur Kürzel statt voller Namen anlegen.
+    </div>
+  </section>
+</main>
+
+<div id="toast"><span id="toasttext"></span><button id="undo">Rückgängig</button></div>
+<div id="dialoghintergrund"></div>
+<div id="dialog" role="dialog" aria-modal="true" aria-labelledby="d_titel">
+  <h3 id="d_titel">Eintrag mit Notiz</h3>
+  <div class="dsym" id="d_symbole">
+    <button class="sym p" data-s="+" aria-pressed="false" aria-label="positiv">+</button>
+    <button class="sym m" data-s="o" aria-pressed="true" aria-label="erwartungsgemäß">○</button>
+    <button class="sym n" data-s="-" aria-pressed="false" aria-label="negativ">−</button>
+  </div>
+  <textarea id="d_notiz" placeholder="Kurznotiz, z. B. „Interpretationsansatz zu Faust selbstständig entwickelt“"></textarea>
+  <div class="daktion">
+    <button class="btn leise" id="d_abbrechen">Abbrechen</button>
+    <button class="btn" id="d_speichern">Speichern</button>
+  </div>
+</div>
+
+<script>
+"use strict";
+const KATEGORIEN = [
+  ["unterricht","Unterrichtsarbeit","§ 4 Abs 1 lit a"],
+  ["sicherung","Sicherung / Hausübung","§ 4 Abs 1 lit b"],
+  ["erarbeitung","Erarbeitung neuer Lehrstoffe","§ 4 Abs 1 lit c"],
+  ["selbst","Selbsttätigkeit","§ 4 Abs 1 lit d"],
+];
+const KEY = "mitarbeit:v2";
+
+let state = { klassen: {} };  // { name:{ schueler:[{name,kz}], eintraege:[...] } }
+let kat = "unterricht";
+let letzterEintrag = null;
+let dialogZiel = null;
+let deckReihe = [];   // aktuelle Swipe-Reihenfolge (Indizes)
+let deckPos = 0;
+
+/* ---------- Speicher ---------- */
+async function laden(){
+  try{
+    const r = await window.storage.get(KEY);
+    if(r&&r.value) state = JSON.parse(r.value);
+  }catch(e){
+    /* v1-Daten übernehmen, falls vorhanden */
+    try{
+      const alt = await window.storage.get("mitarbeit:v1");
+      if(alt&&alt.value){
+        const s1 = JSON.parse(alt.value);
+        Object.entries(s1.klassen||{}).forEach(([k,v])=>{
+          state.klassen[k]={ schueler:(v.schueler||[]).map(n=>({name:n,kz:autoKz(n,[])})), eintraege:v.eintraege||[] };
+        });
+        speichern();
+      }
+    }catch(e2){}
+  }
+}
+let speicherTimer=null;
+function speichern(){
+  clearTimeout(speicherTimer);
+  speicherTimer=setTimeout(async()=>{
+    try{ await window.storage.set(KEY, JSON.stringify(state)); }
+    catch(e){ console.error("Speichern fehlgeschlagen",e); }
+  },400);
+}
+
+/* ---------- Hilfen ---------- */
+const $=id=>document.getElementById(id);
+function heuteISO(){ return new Date().toISOString().slice(0,10); }
+function fmtD(iso){ const d=new Date(iso+"T00:00:00"); return d.toLocaleDateString("de-AT",{day:"2-digit",month:"2-digit",year:"2-digit"}); }
+function klassenNamen(){ return Object.keys(state.klassen).sort(); }
+function aktKlasse(sel){ return $(sel).value; }
+function schuelerVon(kl){ return state.klassen[kl]?.schueler||[]; }
+function eintraegeVon(kl,name){ return (state.klassen[kl]?.eintraege||[]).filter(e=>e.name===name); }
+function autoKz(name,vergeben){
+  const teile=name.trim().split(/\s+/);
+  let kz=(teile.length>1 ? teile.map(t=>t[0]).join("") : name.slice(0,2)).toUpperCase().slice(0,3);
+  let k=kz,i=2;
+  while(vergeben.includes(k)){ k=kz+i; i++; }
+  return k;
+}
+
+/* ---------- Selects & Chips ---------- */
+function fuelleSelects(){
+  const namen=klassenNamen();
+  ["klasse_e","klasse_u","klasse_x"].forEach(id=>{
+    const s=$(id); const alt=s.value;
+    s.innerHTML=namen.length?namen.map(k=>`<option>${k}</option>`).join(""):`<option value="">– keine Klasse –</option>`;
+    if(namen.includes(alt)) s.value=alt;
+  });
+  fuelleSchuelerX();
+}
+function fuelleSchuelerX(){
+  const kl=aktKlasse("klasse_x");
+  $("schueler_x").innerHTML = schuelerVon(kl).map(s=>`<option value="${s.name}">${s.kz} – ${s.name}</option>`).join("")||`<option value="">–</option>`;
+}
+function bauChips(){
+  $("chips_e").innerHTML=KATEGORIEN.map(k=>
+    `<button class="chip" data-k="${k[0]}" aria-pressed="${k[0]===kat}" title="${k[2]} LBVO">${k[1]}</button>`).join("");
+  $("chips_e").querySelectorAll(".chip").forEach(c=>c.addEventListener("click",()=>{kat=c.dataset.k;bauChips();}));
+}
+
+/* ---------- Eintrag speichern ---------- */
+function erfasse(name,sym,notiz){
+  const kl=aktKlasse("klasse_e"); if(!kl) return;
+  const e={ id:Date.now()+Math.random().toString(16).slice(2), name,
+            datum:$("datum_e").value||heuteISO(), sym, kat, notiz };
+  state.klassen[kl].eintraege.push(e);
+  letzterEintrag={kl,id:e.id};
+  speichern();
+  const s=schuelerVon(kl).find(x=>x.name===name);
+  const kname=KATEGORIEN.find(k=>k[0]===kat)[1];
+  zeigToast(`${s?s.kz:name}: ${sym==="o"?"○":sym} (${kname})`);
+}
+function zeigToast(txt){
+  $("toasttext").textContent=txt;
+  const t=$("toast"); t.style.display="flex";
+  clearTimeout(t._timer); t._timer=setTimeout(()=>t.style.display="none",3200);
+}
+$("undo").addEventListener("click",()=>{
+  if(!letzterEintrag) return;
+  const arr=state.klassen[letzterEintrag.kl].eintraege;
+  const i=arr.findIndex(e=>e.id===letzterEintrag.id);
+  if(i>-1) arr.splice(i,1);
+  letzterEintrag=null; speichern();
+  bauListe(); $("toast").style.display="none";
+});
+
+/* ---------- SWIPE-DECK ---------- */
+function starteDeck(neuMischen){
+  const kl=aktKlasse("klasse_e");
+  const n=schuelerVon(kl).length;
+  deckReihe=[...Array(n).keys()];
+  if(neuMischen){ for(let i=n-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [deckReihe[i],deckReihe[j]]=[deckReihe[j],deckReihe[i]]; } }
+  deckPos=0;
+  bauDeck();
+}
+function bauDeck(){
+  const kl=aktKlasse("klasse_e");
+  const sch=schuelerVon(kl);
+  const deck=$("deck");
+  if(!sch.length){ deck.innerHTML=`<p class="leerhinweis">Noch keine Klasse angelegt.<br>Unter „Klassen“ eine Namensliste einfügen.</p>`; return; }
+  if(deckPos>=deckReihe.length){
+    deck.innerHTML=`<div class="deck-fertig"><b>Runde beendet</b> – alle ${deckReihe.length} Karten durch.<br>„Runde neu starten“ für einen weiteren Durchgang.</div>`;
+    return;
+  }
+  const s=sch[deckReihe[deckPos]];
+  deck.innerHTML=`
+    <div class="deck-hinter h2"></div>
+    <div class="deck-hinter h1"></div>
+    <div class="karte-s" id="topkarte" tabindex="0" role="group"
+         aria-label="Karte ${s.kz}. Pfeil rechts positiv, links negativ, oben erwartungsgemäß, unten überspringen.">
+      <span class="zaehler">${deckPos+1} / ${deckReihe.length}</span>
+      <span class="stempel-o rechts">+</span>
+      <span class="stempel-o links">−</span>
+      <span class="stempel-o oben">○</span>
+      <span class="kuerzel">${s.kz}</span>
+      <span class="voll">${s.name}</span>
+      <span class="richtungshilfe">→ positiv · ← negativ · ↑ erwartungsgemäß · ↓ überspringen</span>
+    </div>`;
+  aktiviereSwipe($("topkarte"), s.name);
+}
+function aktiviereSwipe(karte, name){
+  let sx=0, sy=0, dx=0, dy=0, aktiv=false;
+  const SCHWELLE=90;
+  function setzeTransform(){
+    karte.style.transform=`translate(${dx}px,${dy}px) rotate(${dx*0.06}deg)`;
+    const r=karte.querySelector(".stempel-o.rechts"), l=karte.querySelector(".stempel-o.links"), o=karte.querySelector(".stempel-o.oben");
+    r.style.opacity=Math.max(0,Math.min(1,dx/SCHWELLE));
+    l.style.opacity=Math.max(0,Math.min(1,-dx/SCHWELLE));
+    o.style.opacity=Math.max(0,Math.min(1,(-dy-30)/SCHWELLE));
+  }
+  karte.addEventListener("pointerdown",ev=>{
+    aktiv=true; sx=ev.clientX; sy=ev.clientY; karte.setPointerCapture(ev.pointerId);
+    karte.style.transition="none";
+  });
+  karte.addEventListener("pointermove",ev=>{
+    if(!aktiv) return;
+    dx=ev.clientX-sx; dy=ev.clientY-sy; setzeTransform();
+  });
+  karte.addEventListener("pointerup",()=>{
+    if(!aktiv) return; aktiv=false;
+    const absX=Math.abs(dx), absY=Math.abs(dy);
+    let aktion=null;
+    if(absX>SCHWELLE && absX>=absY) aktion = dx>0 ? "+" : "-";
+    else if(absY>SCHWELLE) aktion = dy<0 ? "o" : "skip";
+    if(aktion){ flieg(karte, dx, dy, aktion, name); }
+    else{ karte.style.transition="transform .18s ease"; dx=dy=0; setzeTransform(); }
+  });
+  karte.addEventListener("keydown",ev=>{
+    const map={ArrowRight:"+",ArrowLeft:"-",ArrowUp:"o",ArrowDown:"skip"};
+    if(map[ev.key]){ ev.preventDefault(); swipeAktion(map[ev.key]); }
+  });
+}
+function flieg(karte,dx,dy,aktion,name){
+  const zx = aktion==="+"?window.innerWidth : aktion==="-"?-window.innerWidth : dx;
+  const zy = aktion==="o"?-window.innerHeight : aktion==="skip"?window.innerHeight : dy;
+  karte.style.transition="transform .28s ease-in";
+  karte.style.transform=`translate(${zx}px,${zy}px) rotate(${zx*0.05}deg)`;
+  setTimeout(()=>{
+    if(aktion!=="skip") erfasse(name,aktion,"");
+    deckPos++; bauDeck();
+  },240);
+}
+function swipeAktion(aktion){
+  const kl=aktKlasse("klasse_e");
+  const sch=schuelerVon(kl);
+  if(deckPos>=deckReihe.length||!sch.length) return;
+  const karte=$("topkarte");
+  const name=sch[deckReihe[deckPos]].name;
+  if(karte) flieg(karte,0,0,aktion,name);
+}
+$("sw_plus").addEventListener("click",()=>swipeAktion("+"));
+$("sw_minus").addEventListener("click",()=>swipeAktion("-"));
+$("sw_mid").addEventListener("click",()=>swipeAktion("o"));
+$("sw_skip").addEventListener("click",()=>swipeAktion("skip"));
+$("sw_neu").addEventListener("click",()=>starteDeck(false));
+$("sw_mischen").addEventListener("click",()=>starteDeck(true));
+
+/* ---------- Listen-Modus ---------- */
+function bauListe(){
+  const kl=aktKlasse("klasse_e");
+  const ziel=$("liste_e");
+  const sch=schuelerVon(kl);
+  if(!sch.length){ ziel.innerHTML=`<p class="leerhinweis">Noch keine Klasse angelegt.</p>`; return; }
+  const datum=$("datum_e").value||heuteISO();
+  ziel.innerHTML=sch.map(s=>{
+    const heutige=eintraegeVon(kl,s.name).filter(e=>e.datum===datum).map(e=>e.sym==="o"?"○":e.sym).join(" ");
+    return `<div class="schueler">
+      <span class="name">${s.kz} <small>· ${s.name}</small></span>
+      <span class="heute">${heutige}</span>
+      <button class="sym p" data-n="${s.name}" data-s="+" aria-label="${s.kz}: positiv">+</button>
+      <button class="sym m" data-n="${s.name}" data-s="o" aria-label="${s.kz}: erwartungsgemäß">○</button>
+      <button class="sym n" data-n="${s.name}" data-s="-" aria-label="${s.kz}: negativ">−</button>
+      <button class="notizknopf" data-n="${s.name}" title="Eintrag mit Notiz" aria-label="${s.kz}: Eintrag mit Notiz">✎</button>
+    </div>`;
+  }).join("");
+  ziel.querySelectorAll(".sym").forEach(b=>b.addEventListener("click",()=>{erfasse(b.dataset.n,b.dataset.s,"");bauListe();}));
+  ziel.querySelectorAll(".notizknopf").forEach(b=>b.addEventListener("click",()=>oeffneDialog(b.dataset.n)));
+}
+
+/* ---------- Modus ---------- */
+function setzeModus(m){
+  $("modus_swipe").setAttribute("aria-pressed",m==="swipe");
+  $("modus_liste").setAttribute("aria-pressed",m==="liste");
+  $("swipebereich").style.display=m==="swipe"?"block":"none";
+  $("listenbereich").style.display=m==="liste"?"block":"none";
+  if(m==="swipe") starteDeck(false); else bauListe();
+}
+$("modus_swipe").addEventListener("click",()=>setzeModus("swipe"));
+$("modus_liste").addEventListener("click",()=>setzeModus("liste"));
+
+/* ---------- Notiz-Dialog ---------- */
+function oeffneDialog(name){
+  dialogZiel=name;
+  $("d_titel").textContent=`Eintrag mit Notiz – ${name}`;
+  $("d_notiz").value="";
+  $("d_symbole").querySelectorAll(".sym").forEach(b=>b.setAttribute("aria-pressed",b.dataset.s==="o"));
+  $("dialoghintergrund").style.display="block"; $("dialog").style.display="block";
+  $("d_notiz").focus();
+}
+$("d_symbole").querySelectorAll(".sym").forEach(b=>b.addEventListener("click",()=>{
+  $("d_symbole").querySelectorAll(".sym").forEach(x=>x.setAttribute("aria-pressed","false"));
+  b.setAttribute("aria-pressed","true");
+}));
+function schliesseDialog(){ $("dialoghintergrund").style.display="none"; $("dialog").style.display="none"; }
+$("d_abbrechen").addEventListener("click",schliesseDialog);
+$("dialoghintergrund").addEventListener("click",schliesseDialog);
+$("d_speichern").addEventListener("click",()=>{
+  const sym=$("d_symbole").querySelector('.sym[aria-pressed="true"]').dataset.s;
+  erfasse(dialogZiel,sym,$("d_notiz").value.trim());
+  schliesseDialog(); bauListe();
+});
+
+/* ---------- Übersicht ---------- */
+function bauUebersicht(){
+  const kl=aktKlasse("klasse_u");
+  const ziel=$("liste_u");
+  const sch=schuelerVon(kl);
+  if(!sch.length){ ziel.innerHTML=`<p class="leerhinweis">Keine Klasse ausgewählt.</p>`; return; }
+  ziel.innerHTML=sch.map(s=>{
+    const es=eintraegeVon(kl,s.name);
+    const p=es.filter(e=>e.sym==="+").length, m=es.filter(e=>e.sym==="o").length, neg=es.filter(e=>e.sym==="-").length;
+    const ges=es.length;
+    let tKl="leer", tTxt="keine Einträge";
+    if(ges){
+      const score=(p-neg)/ges;
+      if(score>0.25){tKl="p";tTxt="Tendenz positiv";}
+      else if(score<-0.25){tKl="n";tTxt="Tendenz negativ";}
+      else{tKl="m";tTxt="erwartungsgemäß";}
+    }
+    const bw=x=>ges?Math.round(x/ges*100):0;
+    const eintragHtml=es.slice().reverse().map(e=>{
+      const kname=KATEGORIEN.find(k=>k[0]===e.kat)?.[1]||e.kat;
+      return `<div class="eintrag"><span class="ed">${fmtD(e.datum)}</span>
+        <span class="es ${e.sym==="+"?"p":e.sym==="o"?"m":"n"}">${e.sym==="o"?"○":e.sym}</span>
+        <span class="ek">${kname}${e.notiz?" · "+e.notiz:""}</span>
+        <button data-id="${e.id}" aria-label="Eintrag löschen">✕</button></div>`;
+    }).join("");
+    return `<div class="karte">
+      <div class="kopfzeile"><span class="kname">${s.kz} <small>· ${s.name}</small></span><span class="tendenz ${tKl}">${tTxt} · ${ges} Einträge</span></div>
+      <div class="balken" role="img" aria-label="${p} positiv, ${m} erwartungsgemäß, ${neg} negativ">
+        <div class="bp" style="width:${bw(p)}%"></div><div class="bm" style="width:${bw(m)}%"></div><div class="bn" style="width:${bw(neg)}%"></div>
+      </div>
+      <div class="kstat">+ ${p} · ○ ${m} · − ${neg}</div>
+      ${ges?`<details><summary>Alle Einträge</summary>${eintragHtml}</details>`:""}
+    </div>`;
+  }).join("");
+  ziel.querySelectorAll(".eintrag button").forEach(b=>b.addEventListener("click",()=>{
+    const arr=state.klassen[kl].eintraege;
+    const i=arr.findIndex(e=>e.id===b.dataset.id);
+    if(i>-1 && confirm("Diesen Eintrag löschen?")){ arr.splice(i,1); speichern(); bauUebersicht(); }
+  }));
+}
+
+/* ---------- Export ---------- */
+$("x_absatz").addEventListener("click",()=>{
+  const kl=aktKlasse("klasse_x"), n=$("schueler_x").value;
+  const es=eintraegeVon(kl,n).sort((a,b)=>a.datum.localeCompare(b.datum));
+  if(!es.length){ $("exporttext").value="Keine Einträge vorhanden."; return; }
+  const p=es.filter(e=>e.sym==="+").length, m=es.filter(e=>e.sym==="o").length, neg=es.filter(e=>e.sym==="-").length;
+  const von=fmtD(es[0].datum), bis=fmtD(es[es.length-1].datum);
+  const proKat=KATEGORIEN.map(k=>{
+    const ke=es.filter(e=>e.kat===k[0]);
+    if(!ke.length) return null;
+    const kp=ke.filter(e=>e.sym==="+").length, kn=ke.filter(e=>e.sym==="-").length;
+    return `– ${k[1]} (${k[2]} LBVO): ${ke.length} Beobachtungen (davon ${kp} positiv, ${kn} negativ)`;
+  }).filter(Boolean).join("\n");
+  const notizen=es.filter(e=>e.notiz).map(e=>`– ${fmtD(e.datum)} (${e.sym==="o"?"○":e.sym}): ${e.notiz}`).join("\n");
+  $("exporttext").value=
+`Aufzeichnungen zur Mitarbeit gemäß § 4 LBVO – ${n} (${kl})
+
+Im Zeitraum ${von} bis ${bis} wurden ${es.length} dokumentierte Beobachtungen der Mitarbeit festgehalten (${p} positiv, ${m} erwartungsgemäß, ${neg} negativ). Die Aufzeichnungen erfolgten laufend im Sinne des § 4 Abs 2 LBVO; eine gesonderte Benotung einzelner Leistungen erfolgte nicht.
+
+Nach Bereichen des § 4 Abs 1 LBVO:
+${proKat}
+${notizen?`\nExemplarische Einzelbeobachtungen:\n${notizen}`:""}`;
+});
+$("x_csv").addEventListener("click",()=>{
+  const kl=aktKlasse("klasse_x");
+  const es=(state.klassen[kl]?.eintraege||[]).slice().sort((a,b)=>a.datum.localeCompare(b.datum)||a.name.localeCompare(b.name));
+  const kz=n=>schuelerVon(kl).find(s=>s.name===n)?.kz||"";
+  const z=["Datum;Kuerzel;Name;Symbol;Kategorie;Notiz"];
+  es.forEach(e=>z.push([e.datum,kz(e.name),e.name,e.sym==="o"?"o":e.sym,KATEGORIEN.find(k=>k[0]===e.kat)?.[1]||e.kat,(e.notiz||"").replace(/;/g,",")].join(";")));
+  $("exporttext").value=z.join("\n");
+});
+$("x_kopieren").addEventListener("click",async()=>{
+  try{ await navigator.clipboard.writeText($("exporttext").value); zeigToast("In Zwischenablage kopiert"); }
+  catch(e){ $("exporttext").select(); document.execCommand("copy"); }
+});
+$("klasse_x").addEventListener("change",fuelleSchuelerX);
+
+/* ---------- Setup ---------- */
+$("s_anlegen").addEventListener("click",()=>{
+  const name=$("s_klassenname").value.trim();
+  const zeilen=$("s_namen").value.split("\n").map(s=>s.trim()).filter(Boolean);
+  if(!name||!zeilen.length){ alert("Bitte Klassenname und mindestens eine Zeile angeben."); return; }
+  const vergeben=[];
+  const schueler=zeilen.map(z=>{
+    const [n,k]=z.split(";").map(t=>t.trim());
+    const kz=(k&&k.length)?k.toUpperCase():autoKz(n,vergeben);
+    vergeben.push(kz);
+    return {name:n,kz};
+  });
+  state.klassen[name]={schueler,eintraege:state.klassen[name]?.eintraege||[]};
+  $("s_klassenname").value=""; $("s_namen").value="";
+  speichern(); fuelleSelects(); starteDeck(false);
+  zeigToast(`Klasse „${name}“ angelegt (${schueler.length} Schüler:innen)`);
+});
+$("s_loeschen").addEventListener("click",()=>{
+  const kl=aktKlasse("klasse_e");
+  if(!kl) return;
+  if(confirm(`Klasse „${kl}“ samt allen Einträgen endgültig löschen?`)){
+    delete state.klassen[kl]; speichern(); fuelleSelects(); starteDeck(false); bauUebersicht();
+  }
+});
+
+/* ---------- Navigation ---------- */
+document.querySelectorAll(".hauptnav button").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll(".hauptnav button").forEach(x=>x.setAttribute("aria-selected","false"));
+  b.setAttribute("aria-selected","true");
+  document.querySelectorAll(".ansicht").forEach(a=>a.classList.remove("aktiv"));
+  $("v_"+b.dataset.v).classList.add("aktiv");
+  if(b.dataset.v==="uebersicht") bauUebersicht();
+  if(b.dataset.v==="export") fuelleSchuelerX();
+}));
+$("klasse_e").addEventListener("change",()=>{ starteDeck(false); bauListe(); });
+$("klasse_u").addEventListener("change",bauUebersicht);
+$("datum_e").addEventListener("change",()=>{ bauListe(); });
+
+/* ---------- Start ---------- */
+(async function(){
+  $("datum_e").value=heuteISO();
+  await laden();
+  bauChips(); fuelleSelects(); setzeModus("swipe");
+})();
+</script>
+</body>
+</html>
