@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KI-Input fürs Kollegium</title>
+<style>
+  :root{
+    --paper:#f6f5f2; --line:#e2e0d8; --line-strong:#c9c6ba;
+    --ink:#20241f; --ink-soft:#7a7c73;
+    --accent:#3c4f76; --accent-soft:#eaeef4;
+    --serif:Georgia,'Iowan Old Style','Times New Roman',serif;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.6}
+
+  header{padding:22px clamp(16px,4vw,44px);border-bottom:1px solid var(--line-strong);
+    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+  header h1{font-family:var(--serif);font-size:1.3rem;font-weight:700}
+  header p{font-size:.8rem;color:var(--ink-soft);margin-top:2px}
+
+  .progress{display:flex;gap:6px}
+  .dot{width:30px;height:6px;background:var(--line-strong);cursor:pointer;transition:background .2s}
+  .dot.active{background:var(--accent)}
+  .dot.done{background:var(--ink-soft)}
+
+  main{max-width:920px;margin:0 auto;padding:clamp(30px,6vw,60px) clamp(16px,4vw,44px) 40px;min-height:60vh}
+
+  .step{display:none}
+  .step.active{display:block;animation:fade .3s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  .step-eyebrow{font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
+  .step h2{font-family:var(--serif);font-size:clamp(1.6rem,4vw,2.2rem);font-weight:700;margin-bottom:18px;letter-spacing:-.3px}
+  .step .lead{font-size:1.05rem;color:var(--ink);margin-bottom:26px;max-width:680px}
+  .step .lead b{color:var(--accent)}
+
+  .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin-bottom:28px}
+  .mini-card{background:#fff;padding:20px}
+  .mini-card h3{font-family:var(--serif);font-size:1rem;margin-bottom:8px}
+  .mini-card p{font-size:.88rem;color:var(--ink-soft)}
+
+  .link-btn{display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:#fff;
+    text-decoration:none;padding:14px 26px;font-weight:600;font-size:.95rem;margin:4px 8px 4px 0}
+  .link-btn:hover{background:var(--accent)}
+  .link-btn.outline{background:#fff;color:var(--ink);border:1px solid var(--line-strong)}
+  .link-btn.outline:hover{border-color:var(--accent);color:var(--accent)}
+  .link-btn svg{width:14px;height:14px}
+
+  ul.bullets{margin:0 0 26px;padding:0;list-style:none}
+  ul.bullets li{position:relative;padding-left:22px;margin-bottom:12px;font-size:.96rem;color:var(--ink)}
+  ul.bullets li::before{content:"—";position:absolute;left:0;color:var(--accent);font-weight:bold}
+
+  .reslist{display:flex;flex-direction:column;margin-bottom:10px}
+  .resitem{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:14px 0;border-top:1px solid var(--line)}
+  .resitem:first-child{border-top:none}
+  .resitem .name{font-weight:700;font-size:.95rem}
+  .resitem .desc{font-size:.85rem;color:var(--ink-soft);margin-top:2px}
+  .resitem a{font-size:.82rem;font-weight:600;color:var(--accent);text-decoration:none;white-space:nowrap;border-bottom:1px solid var(--accent)}
+
+  .note{font-size:.85rem;color:var(--ink-soft);background:var(--accent-soft);border-left:3px solid var(--accent);
+    padding:12px 16px;margin:22px 0;line-height:1.6}
+
+  .navrow{display:flex;justify-content:space-between;align-items:center;margin-top:40px;padding-top:24px;border-top:1px solid var(--line)}
+  .navbtn{appearance:none;border:1px solid var(--ink);background:#fff;color:var(--ink);
+    padding:11px 20px;font-weight:600;font-size:.9rem;cursor:pointer}
+  .navbtn:hover{background:var(--ink);color:#fff}
+  .navbtn:disabled{opacity:.3;cursor:default}
+  .navbtn:disabled:hover{background:#fff;color:var(--ink)}
+  .navbtn.primary{background:var(--ink);color:#fff}
+  .navbtn.primary:hover{background:var(--accent);border-color:var(--accent)}
+  .steplabel{font-size:.8rem;color:var(--ink-soft);font-weight:600}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>KI-Input fürs Kollegium</h1>
+    <p>Leitfaden für den Kurzinput vor der Einladung zu Elements of AI</p>
+  </div>
+  <div class="progress" id="progress"></div>
+</header>
+
+<main>
+
+  <!-- STEP 1 -->
+  <section class="step active" data-step="0">
+    <div class="step-eyebrow">Schritt 1 · Einstieg</div>
+    <h2>TED Talk als Türöffner</h2>
+    <p class="lead">Sal Khan (Khan Academy), <b>„How AI could save (not destroy) education"</b> – TED 2023, ca. 15 Minuten, deutsche Untertitel verfügbar. Bewusst gewählt, weil er aus Bildungsperspektive spricht statt technisch-abstrakt zu bleiben.</p>
+
+    <a class="link-btn" href="https://www.ted.com/talks/sal_khan_how_ai_could_save_not_destroy_education" target="_blank" rel="noopener">
+      TED Talk öffnen <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+    </a>
+
+    <div class="note">Tipp: Entweder vorab als Hausaufgabe verschicken und im Input nur die Kernaussage aufgreifen, oder live einen 3–5-minütigen Ausschnitt zeigen (z. B. Minute 0–4).</div>
+  </section>
+
+  <!-- STEP 2 -->
+  <section class="step" data-step="1">
+    <div class="step-eyebrow">Schritt 2 · Kernbotschaft</div>
+    <h2>Was kann KI im Schulalltag leisten?</h2>
+    <p class="lead">Vier Kategorien, je ein konkretes Beispiel – bewusst knapp gehalten.</p>
+
+    <div class="card-grid">
+      <div class="mini-card">
+        <h3>Verwaltung &amp; Kommunikation</h3>
+        <p>Elternbriefe, Protokolle, Formulierungshilfen entlasten den Schreibaufwand.</p>
+      </div>
+      <div class="mini-card">
+        <h3>Unterrichtsvorbereitung</h3>
+        <p>Differenzierte Arbeitsblätter, Ideen für Einstiege schneller entwickeln.</p>
+      </div>
+      <div class="mini-card">
+        <h3>Feedback &amp; Korrektur</h3>
+        <p>Unterstützung bei Rechtschreibung &amp; Formulierung – ersetzt nicht die Bewertung.</p>
+      </div>
+      <div class="mini-card">
+        <h3>Recherche &amp; Ideenfindung</h3>
+        <p>Schneller Überblick, Diskussionsfragen, verschiedene Perspektiven sammeln.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 3 -->
+  <section class="step" data-step="2">
+    <div class="step-eyebrow">Schritt 3 · Best-Practice-Beispiel</div>
+    <h2>Live-Demo: euer eigenes Dashboard</h2>
+    <p class="lead">Der wirkungsvollste Moment des Inputs: zeigen, dass mit KI in wenigen Stunden ein echtes, nützliches Tool für den eigenen Schulalltag entstanden ist – konkret statt abstrakt.</p>
+
+    <ul class="bullets">
+      <li>Kurz zeigen: Organigramm, Onboarding-Checkliste, Formulare &amp; Vorlagen</li>
+      <li>Betonen: kein Programmieraufwand, aus einem Gespräch mit einer KI entstanden</li>
+      <li>Kolleg:innen einladen, eigene Ideen für Tools/Erleichterungen zu sammeln</li>
+    </ul>
+
+    <div class="note">Diese Datei öffnest du separat aus eurem Lehrkräfte-Dashboard-Ordner (<code>Lehrkraefte_Dashboard_GRG7_Kandlgasse.html</code>) – am besten vorab in einem zweiten Tab bereit haben.</div>
+  </section>
+
+  <!-- STEP 4 -->
+  <section class="step" data-step="3">
+    <div class="step-eyebrow">Schritt 4 · Wichtig vorab</div>
+    <h2>Datenschutz</h2>
+    <p class="lead">Kurz und klar – das nimmt Unsicherheit, ohne das Thema zu überfrachten.</p>
+
+    <ul class="bullets">
+      <li>Keine Schülerdaten (Namen, Noten, Diagnosen) in öffentliche/kostenlose KI-Tools eingeben</li>
+      <li>Unterschied zwischen kostenloser Version und dienstlich freigegebenen Tools kennen</li>
+      <li>Grundsatz Datensparsamkeit: wenn möglich anonymisieren oder verallgemeinern</li>
+      <li>Im Zweifel: Datenschutzbeauftragte:n der Schule fragen</li>
+    </ul>
+
+    <a class="link-btn outline" href="https://bildung.bmbwf.gv.at/schulen/datenschutz/index.html" target="_blank" rel="noopener">BMBWF Datenschutz-Leitfaden</a>
+    <a class="link-btn outline" href="https://www.bmb.gv.at/ki" target="_blank" rel="noopener">BMBWF: KI an Österreichs Schulen</a>
+  </section>
+
+  <!-- STEP 5 (neu) -->
+  <section class="step" data-step="4">
+    <div class="step-eyebrow">Schritt 5 · Offizieller Rahmen</div>
+    <h2>Projekte von Ministerium &amp; Bildungsdirektion</h2>
+    <p class="lead">Zeigt dem Kollegium, dass das Thema nicht nur "von euch" kommt, sondern bildungspolitisch verankert ist – gut geeignet, um Vorbehalte zu entkräften.</p>
+
+    <div class="reslist">
+      <div class="resitem">
+        <div><div class="name">BMBWF – Schulpaket KI</div><div class="desc">Offizielle Maßnahmen: KI-Pilotschulen, Lehrer:innenfortbildung, Eduthek-Materialien, ethischer Rahmen</div></div>
+        <a href="https://www.bmbwf.gv.at/Themen/schule/zrp/ki.html" target="_blank" rel="noopener">Öffnen →</a>
+      </div>
+      <div class="resitem">
+        <div><div class="name">eEducation Austria – KI-Initiative</div><div class="desc">100+ KI-Pilotschulen österreichweit, interaktive Karte, KI-Badge, Prompt-Best-Practices</div></div>
+        <a href="https://eeducation.at/community/ki-initiative-des-bm" target="_blank" rel="noopener">Öffnen →</a>
+      </div>
+      <div class="resitem">
+        <div><div class="name">Bildungsdirektion Wien – KI im Klassenzimmer</div><div class="desc">Einordnung, Praxisbeispiele und Podcast speziell für Wiener Schulen</div></div>
+        <a href="https://www.bildung-wien.gv.at/service/Aktuells-Infomailing/News/K-nstliche-Intelligenz-im-Klassenzimmer.html" target="_blank" rel="noopener">Öffnen →</a>
+      </div>
+      <div class="resitem">
+        <div><div class="name">Future Learning Lab Wien (PH Wien)</div><div class="desc">Frei nutzbare OER-Lehr-/Lernszenarien zu KI, entstanden im „Change!"-Projekt</div></div>
+        <a href="https://www.viclearninglab.at/" target="_blank" rel="noopener">Öffnen →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 6 -->
+  <section class="step" data-step="5">
+    <div class="step-eyebrow">Schritt 6 · Einladung</div>
+    <h2>Elements of AI</h2>
+    <p class="lead">Kostenloser, deutschsprachiger Online-Kurs der Universität Helsinki. <b>Kein Vorwissen nötig.</b> Sechs Module, im eigenen Tempo (Richtwert 15–30 Stunden, muss nicht am Stück absolviert werden).</p>
+
+    <a class="link-btn" href="https://course.elementsofai.com/de/" target="_blank" rel="noopener">
+      Elements of AI öffnen <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+    </a>
+
+    <div class="note">Idee: als gemeinsame „Kollegiums-Challenge" mit Stichtag framen – z. B. bis zur nächsten Konferenz zumindest Modul 1 abschließen.</div>
+  </section>
+
+  <!-- STEP 7 -->
+  <section class="step" data-step="6">
+    <div class="step-eyebrow">Schritt 7 · Zum Weitergeben</div>
+    <h2>Weiterführende Fortbildungen</h2>
+    <p class="lead">Für alle, die tiefer einsteigen möchten – als Handout oder Link-Liste im Anschluss verschicken.</p>
+
+    <div class="reslist">
+      <div class="resitem">
+        <div><div class="name">KI-Tipps für den Unterricht</div><div class="desc">Weiterführende Linksammlung: Ministerium, Unterrichtsmaterial, VWA-Vorgaben</div></div>
+        <a href="KI_Tipps_Unterricht.html">Öffnen →</a>
+      </div>
+      <div class="resitem">
+        <div><div class="name">Elements of AI</div><div class="desc">Basis, online, kostenlos, deutschsprachig</div></div>
+        <a href="https://course.elementsofai.com/de/" target="_blank" rel="noopener">Öffnen →</a>
+      </div>
+      <div class="resitem">
+        <div><div class="name">KI-MOOC der Virtuellen PH</div><div class="desc">Für alle österreichischen Lehrkräfte, Onlinecampus, kostenlos</div></div>
+        <a href="https://www.virtuelle-ph.at/" target="_blank" rel="noopener">Öffnen →</a>
+      </div>
+      <div class="resitem">
+        <div><div class="name">eEducation Austria – KI-Initiative</div><div class="desc">KI-Badge fürs Kollegium, Referent:innen-Pool für SCHILF am Standort</div></div>
+        <a href="https://eeducation.at/community/ki-initiative-des-bm" target="_blank" rel="noopener">Öffnen →</a>
+      </div>
+      <div class="resitem">
+        <div><div class="name">Saferinternet.at</div><div class="desc">Materialien zu KI &amp; Datenschutz für den Unterricht</div></div>
+        <a href="https://www.saferinternet.at/" target="_blank" rel="noopener">Öffnen →</a>
+      </div>
+      <div class="resitem">
+        <div><div class="name">PH Wien Fortbildungsprogramm</div><div class="desc">z. B. „Interdisziplinär unterrichten mit ChatGPT &amp; Co."</div></div>
+        <a href="https://phwien.ac.at/" target="_blank" rel="noopener">Öffnen →</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="navrow">
+    <button class="navbtn" id="btnBack" onclick="go(-1)">← Zurück</button>
+    <span class="steplabel" id="stepLabel">Schritt 1 von 6</span>
+    <button class="navbtn primary" id="btnNext" onclick="go(1)">Weiter →</button>
+  </div>
+
+</main>
+
+<script>
+  const steps = document.querySelectorAll('.step');
+  const total = steps.length;
+  let current = 0;
+
+  const progress = document.getElementById('progress');
+  for(let i = 0; i < total; i++){
+    const dot = document.createElement('div');
+    dot.className = 'dot' + (i === 0 ? ' active' : '');
+    dot.addEventListener('click', () => { current = i; render(); });
+    progress.appendChild(dot);
+  }
+
+  function render(){
+    steps.forEach((s, i) => s.classList.toggle('active', i === current));
+    document.querySelectorAll('.dot').forEach((d, i) => {
+      d.classList.toggle('active', i === current);
+      d.classList.toggle('done', i < current);
+    });
+    document.getElementById('stepLabel').textContent = `Schritt ${current + 1} von ${total}`;
+    document.getElementById('btnBack').disabled = current === 0;
+    document.getElementById('btnNext').textContent = current === total - 1 ? 'Fertig' : 'Weiter →';
+    document.getElementById('btnNext').disabled = current === total - 1;
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  function go(delta){
+    current = Math.min(Math.max(current + delta, 0), total - 1);
+    render();
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'ArrowRight') go(1);
+    if(e.key === 'ArrowLeft') go(-1);
+  });
+</script>
+
+</body>
+</html>
