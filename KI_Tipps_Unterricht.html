@@ -37,6 +37,9 @@
   .link-btn:hover{background:var(--accent)}
   .link-btn svg{width:13px;height:13px}
 
+  .video-embed{position:relative;width:100%;padding-top:56.25%;background:#000}
+  .video-embed iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
+
   /* Einstieg-Banner */
   .banner{background:var(--accent-soft);border-left:3px solid var(--accent);padding:20px 24px;
     display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
@@ -71,15 +74,9 @@
 
   <section>
     <h2>Vorspann</h2>
-    <p class="desc">Guter Einstieg, um das Thema aus Bildungsperspektive statt technisch-abstrakt zu eröffnen.</p>
-    <div class="ted-card">
-      <div class="txt">
-        <b>Sal Khan: „How AI could save (not destroy) education"</b>
-        <span>TED 2023 · ca. 15 Min. · deutsche Untertitel verfügbar</span>
-      </div>
-      <a class="link-btn" href="https://www.ted.com/talks/sal_khan_how_ai_could_save_not_destroy_education" target="_blank" rel="noopener">
-        Ansehen <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
-      </a>
+    <p class="desc">Nimm dir 15 Minuten – Sal Khan zeigt dir, was KI für deinen Unterricht bedeuten kann.</p>
+    <div class="video-embed">
+      <iframe src="https://embed.ted.com/talks/lang/de/sal_khan_how_ai_could_save_not_destroy_education" width="100%" height="100%" frameborder="0" scrolling="no" allowfullscreen title="TED Talk: Sal Khan – How AI could save (not destroy) education"></iframe>
     </div>
   </section>
 
@@ -91,7 +88,7 @@
         <b>KI-Input fürs Kollegium</b>
         <span>Geführtes Dashboard: TED Talk, Best-Practice-Beispiel, Datenschutz, Elements of AI</span>
       </div>
-      <a class="link-btn" href="KI_Input_Kollegium.html">
+      <a class="link-btn" href="KI-Input_Kollegium-2.html">
         Öffnen <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
       </a>
     </div>
